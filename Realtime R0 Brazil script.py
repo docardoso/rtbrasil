@@ -49,6 +49,9 @@ states = pd.read_csv(csv_file, nrows=last_line, encoding = 'ISO-8859-1', delimit
 print(states)
 states = states.rename(columns={'data':'date', 'estado': 'state', 'casosAcumulados': 'positive'})
 states.date = pd.to_datetime(states.date, dayfirst=True)
+agg = states.groupby('date').sum()
+agg['state'] = 'BR'
+states = states.append(agg.reset_index(), sort=False)
 states = states.set_index(['state', 'date']).squeeze().sort_index()
 def prepare_cases(cases):
     new_cases = cases.diff()
@@ -104,7 +107,7 @@ def get_posteriors(sr, sigma=0.15):
         # Add to the running sum of log likelihoods
         log_likelihood += np.log(denominator)
     return posteriors, log_likelihood
-sigmas = np.array([0.15]) #np.linspace(1/20, 1, 20)
+sigmas = np.linspace(1/20, 1, 20)  #np.array([0.15]) #
 targets = ~states.index.get_level_values('state').isin(FILTERED_REGION_CODES)
 states_to_process = states.loc[targets]
 results = {}
@@ -128,6 +131,7 @@ for state_name, result in results.items():
     total_log_likelihoods += result['log_likelihoods']
 max_likelihood_index = total_log_likelihoods.argmax()
 sigma = sigmas[max_likelihood_index]
+print('Chosen sigma:', sigma)
 final_results = None
 for state_name, result in results.items():
     print(state_name)
