@@ -16,6 +16,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta name="author" content="Diego Barreto Haddad,Douglas de Oliveira Cardoso,Jurair Rosa de Paula Junior,Laura Silva de Assis,Luis Carlos dos Santos Coutinho Retondaro,Luís Domingues Tomé Jardim Tarrataca,Pedro Carlos da Silva Lara">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<meta property="og:title" content="Monitor da COVID-19"/>
+<meta property="og:image" content="shareIcon.png"/>
+<meta property="og:description" content="Você gostaria de saber como é que o COVID19 está evoluindo no Brasil? Como se está espalhando no seu estado? Gostaria de perceber se a tendência de contaminação está crescendo ou diminuindo? Consulte aqui."/>
+<meta property="og:url" content="http://monitorcovid.com.br"/>
+
 <link rel="icon" href="icon.png" type="image/png">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
@@ -52,6 +57,39 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         // thousandsSep: "."
         }
   });
+</script>
+
+<script>
+  var flagsMap = {
+    'BR': 'url(flags/BR.png)',
+    'AC': 'url(flags/ACg.png)',
+    'AL': 'url(flags/ALg.png)',
+    'AM': 'url(flags/AMg.png)',
+    'AP': 'url(flags/APg.png)',
+    'BA': 'url(flags/BAg.png)',
+    'CE': 'url(flags/CEg.png)',
+    'DF': 'url(flags/DFg.png)',
+    'ES': 'url(flags/ESg.png)',
+    'GO': 'url(flags/GOg.png)',
+    'MA': 'url(flags/MAg.png)',
+    'MG': 'url(flags/MGg.png)',
+    'MS': 'url(flags/MSg.png)',
+    'MT': 'url(flags/MTg.png)',
+    'PA': 'url(flags/PAg.png)',
+    'PB': 'url(flags/PBg.png)',
+    'PE': 'url(flags/PEg.png)',
+    'PI': 'url(flags/PIg.png)',
+    'PR': 'url(flags/PRg.png)',
+    'RJ': 'url(flags/RJg.png)',
+    'RN': 'url(flags/RNg.png)',
+    'RO': 'url(flags/ROg.png)',
+    'RR': 'url(flags/RRg.png)',
+    'RS': 'url(flags/RSg.png)',
+    'SC': 'url(flags/SCg.png)',
+    'SE': 'url(flags/SEg.png)',
+    'SP': 'url(flags/SPg.png)',
+    'TO': 'url(flags/TOg.png)',
+  };
 </script>
 
 <style>
@@ -159,6 +197,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div id="container"></div>
       </p>
     </figure>
+
+    <div id='chart-BR' class='item'></div>
+    <p>&nbsp;</p>
 
     <div id="estados" class="items">
       <div id='chart-AC' class='item'></div>
@@ -305,7 +346,16 @@ function addChart( estado ) {
     return function(data) {
         Highcharts.chart("chart-" + estado, {
                       title: {
-                        text: estado
+                        align: 'center',
+                        x: 22,
+                        y: 19,
+                        text: (function() {
+                          if (estado == 'BR'){
+                            return 'Brasil';
+                          } else {
+                            return estado;
+                          }
+                          })()
                       },
 
                       xAxis: {
@@ -322,9 +372,21 @@ function addChart( estado ) {
                             contextButton: {
                                 menuItems: [
                                     'viewFullscreen',
-                                    //'downloadCSV',
                                     'downloadPNG'
                                   ]
+                              },
+                            customContextButton: {
+                                align: 'left',
+                                x: 45,
+                                //symbol: '<img src="flags/BR.png" grayscale=100>',
+                                symbol: flagsMap[estado],
+                                symbolX: 22,
+                                symbolY: 22,
+                                symbolSize: 20//,
+                                //menuItems: [
+                                //    'viewFullscreen',
+                                //    'downloadPNG'
+                                //  ]
                               }
                           }//,
                           //menuItemDefinitions: {
@@ -538,6 +600,11 @@ function addChart( estado ) {
     <a href="https://twitter.com/cefet_rj?lang=en" target="_blank" style="text-decoration:none" class="fa fa-twitter-square w3-hover-opacity"></a>
     <a href="https://www.linkedin.com/company/cefetrj/?originalSubdomain=br" target="_blank" style="text-decoration:none" class="fa fa-linkedin-square w3-hover-opacity"></a>
   </h1>
+  <!--
+  <h1>
+    Ícones feitos por <a href="https://www.flaticon.com/br/autores/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/br/" title="Flaticon">www.flaticon.com</a>
+  </h1>
+  -->
 </div>
 
 </body>
