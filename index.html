@@ -102,7 +102,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
   .highcharts-figure, .highcharts-data-table table {
     min-width: 310px; 
     max-width: 1000px;
-    margin: 5em auto;
+    margin: 2em auto;
   }
   
   #container {
@@ -111,6 +111,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
   }
 
   .date {
+    font-size: 0.9em;
     border: 2px;
     border-radius: 10px;
     padding: 5px;
@@ -192,10 +193,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       Valores próximos de um sugerem estabilidade do número de novos casos ao longo dos próximos dias. Maiores informações
       podem ser encontradas no link supracitado. Os dados referentes ao número de casos em cada estado são extraídos de
       <a href="https://covid.saude.gov.br" target="_blank">https://covid.saude.gov.br</a>.</p>
+    
+    <p id="last_update"></p>
 
     <figure class="highcharts-figure">
       <div id="container"></div>
-      </p>
     </figure>
 
     <div id='chart-BR' class='item'></div>
@@ -258,6 +260,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var num = Number(date[1]);
       last_update = '<span class="date">Última atualização: ' + date[2] + '/' + months[num - 1] + '/' + date[0] + '.</span>';
       //last_update = '<span class="date">Última atualização: ' + date[2] + '/' + date[1] + '/' + date[0] + '.</span>';
+
+      document.getElementById("last_update").innerHTML = last_update;
     });
     
     Highcharts.getJSON(
@@ -277,7 +281,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var error = [];
       
       for (var j = 0; j < data[0].length; j++) {
-        categoria.push( last_rt_data[j].categoria );
+        if (last_rt_data[j].categoria == 'BR'){
+          categoria.push( 'Brasil' );
+        } else {
+          categoria.push( last_rt_data[j].categoria );
+        }
         rt.push( last_rt_data[j].rt );
         error.push( last_rt_data[j].error );
       }
@@ -289,20 +297,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       },
       title: {
         useHTML: true,
-        text: 'R<sub>t</sub> dos estados brasileiros'
+        align: 'center',
+        y: 22,
+        text: 'R<sub>t</sub> Brasil'
       },
-      subtitle: {
-          useHTML: true,
-          text: last_update,
-          floating: false,
-          align: 'right'
-      },
+      //subtitle: {
+      //    useHTML: true,
+      //    text: last_update,
+      //    x: 135,
+      //    y: 19,
+      //    floating: false,
+      //    align: 'left'
+      //},
       navigation: {
         buttonOptions: {
-          enabled: false
+          enabled: true
         }
       },
       xAxis: {
+        useHTML: true,
         categories: categoria
       },
       yAxis: {
@@ -311,6 +324,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           useHTML: true,
           text: 'R<sub>t</sub>'
         }
+      },
+      exporting: {
+        buttons: {
+            contextButton: {
+                y: 5,
+                menuItems: [
+                    'viewFullscreen',
+                    'downloadPNG'
+                  ]
+              }
+          }
       },
       legend: {
         enabled: false
@@ -378,7 +402,6 @@ function addChart( estado ) {
                             customContextButton: {
                                 align: 'left',
                                 x: 45,
-                                //symbol: '<img src="flags/BR.png" grayscale=100>',
                                 symbol: flagsMap[estado],
                                 symbolX: 22,
                                 symbolY: 22,
