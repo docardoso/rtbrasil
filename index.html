@@ -92,6 +92,39 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   };
 </script>
 
+<script>
+  var tooltipsMap = {
+    'BR': '',
+    'AC': 'Dados dos municípios não disponíveis.',
+    'AL': 'Dados dos municípios não disponíveis.',
+    'AM': 'Dados dos municípios não disponíveis.',
+    'AP': 'Dados dos municípios não disponíveis.',
+    'BA': 'Dados dos municípios não disponíveis.',
+    'CE': 'Dados dos municípios não disponíveis.',
+    'DF': 'Dados dos municípios não disponíveis.',
+    'ES': 'Dados dos municípios não disponíveis.',
+    'GO': 'Dados dos municípios não disponíveis.',
+    'MA': 'Dados dos municípios não disponíveis.',
+    'MG': 'Dados dos municípios não disponíveis.',
+    'MS': 'Dados dos municípios não disponíveis.',
+    'MT': 'Dados dos municípios não disponíveis.',
+    'PA': 'Dados dos municípios não disponíveis.',
+    'PB': 'Dados dos municípios não disponíveis.',
+    'PE': 'Dados dos municípios não disponíveis.',
+    'PI': 'Dados dos municípios não disponíveis.',
+    'PR': 'Dados dos municípios não disponíveis.',
+    'RJ': 'Dados dos municípios não disponíveis.',
+    'RN': 'Dados dos municípios não disponíveis.',
+    'RO': 'Dados dos municípios não disponíveis.',
+    'RR': 'Dados dos municípios não disponíveis.',
+    'RS': 'Dados dos municípios não disponíveis.',
+    'SC': 'Dados dos municípios não disponíveis.',
+    'SE': 'Dados dos municípios não disponíveis.',
+    'SP': 'Dados dos municípios não disponíveis.',
+    'TO': 'Dados dos municípios não disponíveis.',
+  };
+</script>
+
 <style>
 body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 .w3-bar,h1,button {font-family: "Montserrat", sans-serif}
@@ -391,6 +424,10 @@ function addChart( estado ) {
                         }
                       },
 
+                      lang: {
+                        tooltipMsg: tooltipsMap[estado]
+                      },
+
                       exporting: {
                         buttons: {
                             contextButton: {
@@ -400,6 +437,7 @@ function addChart( estado ) {
                                   ]
                               },
                             customContextButton: {
+                                _titleKey: 'tooltipMsg',
                                 align: 'left',
                                 x: 45,
                                 symbol: flagsMap[estado],
