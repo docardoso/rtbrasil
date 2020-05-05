@@ -11,7 +11,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <title>Monitor COVID-19</title>
 <meta charset="UTF-8">
-<meta name="description" content="Monitoriamento do COVID-19 baseado na metodologia apresentada no site https://rt.live">
+<meta name="description" content="Monitoriamento da COVID-19 baseado na metodologia apresentada no site https://rt.live">
 <meta name="keywords" content="Coronavirus,Corona-19,Corona,COVID,COVID-19,RT live,Monitoramento,Monitor,Pandemia,Epidemia">
 <meta name="author" content="Diego Barreto Haddad,Douglas de Oliveira Cardoso,Jurair Rosa de Paula Junior,Laura Silva de Assis,Luis Carlos dos Santos Coutinho Retondaro,Luís Domingues Tomé Jardim Tarrataca,Pedro Carlos da Silva Lara">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,10 +19,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta property="og:title" content="Monitor da COVID-19"/>
 <meta property="og:image" content="shareIcon.png"/>
 <meta property="og:description" content="Você gostaria de saber como é que o COVID19 está evoluindo no Brasil? Como se está espalhando no seu estado? Gostaria de perceber se a tendência de contaminação está crescendo ou diminuindo? Consulte aqui."/>
-<meta property="og:url" content="http://monitorcovid.com.br"/>
+<meta property="og:url" content="http://monitorcovid.com.br/"/>
 
 <link rel="icon" href="icon.png" type="image/png">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="template/w3.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -438,26 +438,20 @@ function addChart( estado ) {
                               },
                             customContextButton: {
                                 _titleKey: 'tooltipMsg',
+                                //onclick: function() {
+                                //  if (estado != "SP") {
+                                //    return;
+                                //  }
+                                //  location.href = estado.toLowerCase() + '.html';
+                                //},
                                 align: 'left',
                                 x: 45,
                                 symbol: flagsMap[estado],
                                 symbolX: 22,
                                 symbolY: 22,
-                                symbolSize: 20//,
-                                //menuItems: [
-                                //    'viewFullscreen',
-                                //    'downloadPNG'
-                                //  ]
+                                symbolSize: 20
                               }
-                          }//,
-                          //menuItemDefinitions: {
-                          //  'downloadCSV': {
-                          //      onclick: function () {
-                          //          $.getCSV();// downloadCSV();
-                          //        },
-                          //      text: 'Download documento CSV'
-                          //    }
-                          //}
+                          }
                       },
 
                       navigation: {
