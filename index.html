@@ -179,26 +179,33 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
   .highcharts-data-table tr:hover {
     background: #f1f7ff;
   }
-  .item{
-  flex-basis: calc(33.333% - 10px); 
-  margin: 0 0px; 
-  min-width: calc(100% * (1/4) - 1px);
-  height: 240px;
+  .itemBR {
+    flex-basis: calc(33.333% - 10px);
+    margin: 0 0px;
+    min-width: calc(100% * (1/4) - 1px);
+    height: 240px;
+    width: 100%;
   }
-.item:nth-child(3n+2),
-.item:nth-child(3n+3) {           /*  every 3rd element, start at 2nd and 3rd  */
-  margin-left:15px;               /*  10px per item, divide with 2 gaps  */
+  .item {
+    flex-basis: calc(33.333% - 10px);
+    margin: 0 0px;
+    min-width: calc(100% * (1/4) - 1px);
+    height: 240px;
   }
-.items{
-  flex: 1; 
-  display: flex; 
-  flex-wrap: wrap; 
-  align-content: flex-start;
- }
-.items * {
-  box-sizing: border-box;  
-}
-  </style>
+  .item:nth-child(3n+2),
+  .item:nth-child(3n+3) {           /*  every 3rd element, start at 2nd and 3rd  */
+    margin-left:15px;               /*  10px per item, divide with 2 gaps  */
+  }
+  .items{
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+  }
+  .items * {
+    box-sizing: border-box;
+  }
+</style>
 </head>
 
 <body>
@@ -233,7 +240,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div id="container"></div>
     </figure>
 
-    <div id='chart-BR' class='item'></div>
+    <div id='chart-BR' class='itemBR'></div>
     <p>&nbsp;</p>
 
     <div id="estados" class="items">
