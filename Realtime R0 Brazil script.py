@@ -45,14 +45,18 @@ def get_csv_covid19br( outputFilePath ):
         return outputFilePath + '/' + csvFileName
 csv_file = get_csv_covid19br('/tmp')
 last_line = None  #next(i for i, x in enumerate(open(csv_file, encoding='ISO-8859-1')) if x[0] == ';') - 1
-states = pd.read_csv(csv_file, nrows=last_line, encoding = 'ISO-8859-1', delimiter=';', usecols=['data', 'estado', 'casosAcumulados'])
+#states = pd.read_csv(csv_file, nrows=last_line, encoding = 'ISO-8859-1', delimiter=';', usecols=['data', 'estado', 'casosAcumulados'])
+states = pd.read_excel(csv_file)
+states = states[states.codmun.isna()][['data', 'estado', 'casosAcumulado']]
+states.estado = states.estado.fillna('BR')
 print(states)
 states = states.rename(columns={'data':'date', 'estado': 'state', 'casosAcumulados': 'positive'})
-states.date = pd.to_datetime(states.date, dayfirst=True)
-agg = states.groupby('date').sum()
-agg['state'] = 'BR'
-states = states.append(agg.reset_index(), sort=False)
+states.date = pd.to_datetime(states.date)
+#agg = states.groupby('date').sum()
+#agg['state'] = 'BR'
+#states = states.append(agg.reset_index(), sort=False)
 states = states.set_index(['state', 'date']).squeeze().sort_index()
+#import pdb; pdb.set_trace()
 def prepare_cases(cases):
     new_cases = cases.diff()
     smoothed = new_cases.rolling(9,
