@@ -293,6 +293,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   
   <script>
 
+    var mainChart;
     var last_update;
     var months = [ "Jan", "Fev", "Mar", "Abr", "Maio", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez" ];
     $.getJSON('http://rtbrazilapi.herokuapp.com/last_update', function(json) {
@@ -331,7 +332,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
       
       
-      Highcharts.chart('container', {
+      mainChart = Highcharts.chart('container', {
       chart: {
         type: 'column'
       },
@@ -472,15 +473,15 @@ function addChart( estado ) {
                           useHTML: true,
                           text: 'R<sub>t</sub>'
                         },
-                        min:0,
-                        max:5,
+                        min: mainChart.yAxis[0].min,
+                        max: mainChart.yAxis[0].max,
                         startOnTick: true,
                         endOnTick: false,
-                        tickInterval: 1,
+                        tickInterval: mainChart.yAxis[0].tickInterval,
                         breaks: [{
-                          from: 0,
-                          to: 5,
-                          breakSize: 1
+                          from: mainChart.yAxis[0].min,
+                          to: mainChart.yAxis[0].max,
+                          breakSize: mainChart.yAxis[0].tickInterval
                         }],
                         plotLines: [{
                           color: 'red',
