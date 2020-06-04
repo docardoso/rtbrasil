@@ -222,6 +222,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       
       function addChart( cidade, i ) {
         return function(data) {
+          
+          var days = 7;
+          var prediction = [];
+          for (var j = days; j > 0; j--) {
+            prediction[j] = data[0].pop();
+          }
+          var length = data[0].length - 1;
+          prediction[0] = data[0][length];
+
           Highcharts.chart( "chart-" + i, {
             title: {
               style: {
@@ -281,12 +290,47 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             tooltip: {
               useHTML: true,
-              dateTimeLabelFormats: {
-                  day: '%A, %d/%b/%Y',
-                  week: '%A, %d/%b/%Y',
-                  month: '%A, %d/%b/%Y'
-              },
-              valueDecimals: 2
+              crosshairs: true,
+              shared: true,
+              //dateTimeLabelFormats: {
+              //    day: '%A, %d/%b/%Y',
+              //    week: '%A, %d/%b/%Y',
+              //    month: '%A, %d/%b/%Y'
+              //},
+              //valueDecimals: 2,
+              formatter() {
+                if (this.x === prediction[0][0]) {
+                  var output1 = `<span style=font-size:10px>${ Highcharts.dateFormat('%A, %d/%b/%Y', new Date(this.x))}</span><br/>`
+                  this.points.forEach(point => {
+                    var y = Highcharts.numberFormat(point.point.y, 2)
+                    var low = Highcharts.numberFormat(point.point.low, 2)
+                    var high = Highcharts.numberFormat(point.point.high, 2)
+                    if (point.series.name == "Erro") {
+                      output1 += `<span style="color:${point.color}">◆</span> ${point.series.name}: <b>${low}</b> - <b>${high}</b><br/>`
+                    } else {
+                      if (point.series.name == "R<sub>t</sub> preliminar") {
+                        return
+                      } else {
+                        output1 += `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${y}</b><br/>`
+                      }
+                    }
+                  })
+                  return output1
+                } else {
+                  var output2 = `<span style=font-size:10px>${ Highcharts.dateFormat('%A, %d/%b/%Y', new Date(this.x))}</span><br/>`
+                  this.points.forEach(point => {
+                    var y = Highcharts.numberFormat(point.point.y, 2)
+                    var low = Highcharts.numberFormat(point.point.low, 2)
+                    var high = Highcharts.numberFormat(point.point.high, 2)
+                    if (point.series.name == "Erro") {
+                      output2 += `<span style="color:${point.color}">◆</span> ${point.series.name}: <b>${low}</b> - <b>${high}</b><br/>`
+                    } else {
+                      output2 += `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${y}</b><br/>`
+                    }
+                  })
+                  return output2
+                }
+              }
             },
 
             series: [{
@@ -294,10 +338,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               name: 'R<sub>t</sub>',
               data: data[0],
               zIndex: 1,
+              color: Highcharts.getOptions().colors[0],
               marker: {
-                enabled: false
+                enabled: false,
+                symbol: 'circle'
               }
-            }, {
+            } , {
+              useHTML: true,
+              name: 'R<sub>t</sub> preliminar',
+              data: prediction,
+              dashStyle: 'dot',
+              zIndex: 1,
+              color: Highcharts.getOptions().colors[0],
+              marker: {
+                enabled: false,
+                symbol: 'circle'
+              }
+            } , {
               name: 'Erro',
               data: data[1],
               type: 'arearange',
@@ -307,7 +364,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               fillOpacity: 0.3,
               zIndex: 0,
               marker: {
-                enabled: false
+                enabled: false,
+                symbol: 'diamond'
               }
             }]
           });
