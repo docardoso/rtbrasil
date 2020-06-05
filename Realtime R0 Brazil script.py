@@ -50,7 +50,7 @@ states = pd.read_excel(csv_file)
 states = states[states.codmun.isna()][['data', 'estado', 'casosAcumulado']]
 states.estado = states.estado.fillna('BR')
 print(states)
-states = states.rename(columns={'data':'date', 'estado': 'state', 'casosAcumulados': 'positive'})
+states = states.rename(columns={'data':'date', 'estado': 'state', 'casosAcumulado': 'positive'})
 states.date = pd.to_datetime(states.date)
 #agg = states.groupby('date').sum()
 #agg['state'] = 'BR'
