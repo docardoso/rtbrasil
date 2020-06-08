@@ -7,6 +7,8 @@ matplotlib.use('agg')
 
 import os
 import requests
+import gzip
+import time
 import pymc3 as pm
 import pandas as pd
 import numpy as np
@@ -23,6 +25,39 @@ import json
 
 STATE_CITY_SEP = ';'
 
+# Linhas 29-58: importa dados usando a API brasil.io
+#def get_csv_covid19brasilio( outputFilePath ):
+#    url = "https://data.brasil.io/dataset/covid19/caso.csv.gz"
+#    filename = outputFilePath + url.split("/")[-1]
+#    with open(filename, "wb") as f:
+#        r = requests.get(url)
+#        f.write(r.content)
+#        print(filename)
+#    return filename
+#
+#csv_file = get_csv_covid19brasilio('/tmp/')
+#data = pd.read_csv(csv_file)
+#data = data[(data.date.notna()) & (data.city != 'Importados/Indefinidos') & (confirmed > 0)]
+#
+#country = data[data.city.isna()]
+#country.state = 'BR'
+#country = country.groupby(['date','state'])['confirmed'].sum().reset_index()
+#
+#states = data[data.city.isna()]
+#
+#cities = data[(data.date==data.date.max()) & (~data.city.isna())].sort_values('confirmed').groupby('state').tail(12).city_ibge_code
+#cities = data[data.city_ibge_code.isin(cities)]
+#states = pd.concat([country, states, cities])
+#states.state = states.state + STATE_CITY_SEP + states.city.fillna('')
+#
+#states = states[['date', 'state', 'confirmed']]
+#print(states)
+#states = states.rename(columns={'confirmed': 'positive'})
+#states.date = pd.to_datetime(states.date)
+#states = states.set_index(['state', 'date']).sort_index()
+##states.to_csv('brasilio.csv')
+
+# Linhas 61-91: importa dados do Portal do SUS
 def get_csv_covid19br( outputFilePath ):
     url = 'https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/PortalGeral'
     values = {'X-Parse-Application-Id' : 'unAFkcaNDeXajurGB7LChj8SgQYS2ptm'}
@@ -53,6 +88,7 @@ print(states)
 states = states.rename(columns={'data':'date', 'estado': 'state', 'casosAcumulado': 'positive'})
 states.date = pd.to_datetime(states.date)
 states = states.set_index(['state', 'date']).sort_index()
+#states.to_csv('sus.csv')
 
 def download_file(url, local_filename):
     """From https://stackoverflow.com/questions/16694907/"""
