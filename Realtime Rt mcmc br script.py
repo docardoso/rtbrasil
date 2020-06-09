@@ -25,7 +25,7 @@ import json
 
 STATE_CITY_SEP = ';'
 
-# Linhas 29-60: importa dados usando a API brasil.io
+# Linhas 29-65: importa dados usando a API brasil.io
 def get_csv_covid19brasilio( outputFilePath ):
    csvURL = "https://data.brasil.io/dataset/covid19/caso.csv.gz"
    csvFileName = outputFilePath + csvURL.split("/")[-1]
@@ -35,13 +35,16 @@ def get_csv_covid19brasilio( outputFilePath ):
 
    print(csvFileName)
    return csvFileName
-
 csv_file = get_csv_covid19brasilio('/tmp/')
-data = pd.read_csv(csv_file)
+data = pd.read_csv(
+    csv_file,
+    compression='gzip',
+    parse_dates=False,
+    low_memory=False)
 data = data[(data.date.notna()) & (data.city != 'Importados/Indefinidos') & (data.confirmed > 0)]
 
 country = data[data.city.isna()]
-country.state = 'BR'
+country.state = 'BR' + STATE_CITY_SEP
 country = country.groupby(['date','state'])['confirmed'].sum().reset_index()
 
 states = data[data.city.isna()]
@@ -49,17 +52,19 @@ states = data[data.city.isna()]
 cities = data[(data.is_last == True) & (~data.city.isna())].sort_values('confirmed').groupby('state').tail(12).city_ibge_code
 cities = data[data.city_ibge_code.isin(cities)]
 
-states = pd.concat([country, states, cities])
+states = pd.concat([states, cities])
 states.state = states.state + STATE_CITY_SEP + states.city.fillna('')
 
 states = states[['date', 'state', 'confirmed']]
+states = pd.concat([states, country])
 print(states)
 states = states.rename(columns={'confirmed': 'positive'})
 states.date = pd.to_datetime(states.date)
 states = states.set_index(['state', 'date']).sort_index()
 #states.to_csv('brasil_io.csv')
+#time.sleep(10000000)
 
-# Linhas 63-93: importa dados do Portal do SUS
+# Linhas 68-98: importa dados do Portal do SUS
 # def get_csv_covid19br( outputFilePath ):
 #     url = 'https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/PortalGeral'
 #     values = {'X-Parse-Application-Id' : 'unAFkcaNDeXajurGB7LChj8SgQYS2ptm'}
