@@ -25,7 +25,7 @@ import json
 
 STATE_CITY_SEP = ';'
 
-# Linhas 29-65: importa dados usando a API brasil.io
+# Linhas 29-98: importa dados usando a API brasil.io
 def get_csv_covid19brasilio( outputFilePath ):
    csvURL = "https://data.brasil.io/dataset/covid19/caso.csv.gz"
    csvFileName = outputFilePath + csvURL.split("/")[-1]
@@ -43,11 +43,44 @@ data = pd.read_csv(
     low_memory=False)
 data = data[(data.date.notna()) & (data.city != 'Importados/Indefinidos') & (data.confirmed > 0)]
 
-country = data[data.city.isna()]
-country.state = 'BR' + STATE_CITY_SEP
-country = country.groupby(['date','state'])['confirmed'].sum().reset_index()
-
 states = data[data.city.isna()]
+maxDate = states.date.max()
+statesToUpdate = states[(states.is_last == True) & (states.date != maxDate)]
+#print(statesToUpdate) # FOR DEBUG
+
+# Linhas 52-70: adiciona as informações faltantes dos estados, antes de computar as informacoes do pais.
+# Linhas 53-54: considera que existe apenas um dado (dia) faltante.
+#statesToUpdate.date = maxDate
+#states = states.append(statesToUpdate, ignore_index=True)
+
+# Linhas 58-70: considera que pode haver mais de um dado (dia) faltante para os estados.
+# Nesse caso, o último dado é replicado para os dias (futuros) faltantes.
+def addMissingRows ( df, statesToUpdate, maxDate ) :
+    for index, row in statesToUpdate.iterrows():
+
+        date1 = df[df.state == row.state].date.max()
+        date1 = pd.to_datetime(date1, format='%Y-%m-%d').date()
+        date2 = pd.to_datetime(maxDate, format='%Y-%m-%d').date()
+
+        while (date1 < date2):
+            date1 = date1 + pd.to_timedelta(1, unit='d')
+            newRow = row
+            newRow.date = date1
+            df = df.append(newRow, ignore_index=True)
+    return df
+
+#states.to_csv('country1.csv') # FOR DEBUG
+states = addMissingRows(states, statesToUpdate, maxDate)
+#states.to_csv('country2.csv') # FOR DEBUG
+states.state = 'BR' + STATE_CITY_SEP
+country = states.groupby(['date','state'])['confirmed'].sum().reset_index()
+
+# A linha abaixo reinicia as infos dos estados.
+states = data[data.city.isna()]
+
+# Para usar os estados com as infos (dias) faltantes, as quais foram utilizadas para gerar os dados do pais,
+# basta descomentar a linha abaixo.
+states = addMissingRows(states, statesToUpdate, maxDate)
 
 cities = data[(data.is_last == True) & (~data.city.isna())].sort_values('confirmed').groupby('state').tail(12).city_ibge_code
 cities = data[data.city_ibge_code.isin(cities)]
@@ -57,14 +90,14 @@ states.state = states.state + STATE_CITY_SEP + states.city.fillna('')
 
 states = states[['date', 'state', 'confirmed']]
 states = pd.concat([states, country])
-print(states)
+print(states) # FOR DEBUG
 states = states.rename(columns={'confirmed': 'positive'})
 states.date = pd.to_datetime(states.date)
 states = states.set_index(['state', 'date']).sort_index()
-#states.to_csv('brasil_io.csv')
-#time.sleep(10000000)
+#states.to_csv('brasil_io.csv') # FOR DEBUG
+#time.sleep(10000000) # FOR DEBUG
 
-# Linhas 68-98: importa dados do Portal do SUS
+# Linhas 101-131: importa dados do Portal do SUS
 # def get_csv_covid19br( outputFilePath ):
 #     url = 'https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/PortalGeral'
 #     values = {'X-Parse-Application-Id' : 'unAFkcaNDeXajurGB7LChj8SgQYS2ptm'}
