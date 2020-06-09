@@ -26,109 +26,109 @@ import json
 STATE_CITY_SEP = ';'
 
 # Linhas 29-98: importa dados usando a API brasil.io
-def get_csv_covid19brasilio( outputFilePath ):
-   csvURL = "https://data.brasil.io/dataset/covid19/caso.csv.gz"
-   csvFileName = outputFilePath + csvURL.split("/")[-1]
-   with open(csvFileName, "wb") as f:
-       r = requests.get(csvURL)
-       f.write(r.content)
+# def get_csv_covid19brasilio( outputFilePath ):
+#    csvURL = "https://data.brasil.io/dataset/covid19/caso.csv.gz"
+#    csvFileName = outputFilePath + csvURL.split("/")[-1]
+#    with open(csvFileName, "wb") as f:
+#        r = requests.get(csvURL)
+#        f.write(r.content)
 
-   print(csvFileName)
-   return csvFileName
-csv_file = get_csv_covid19brasilio('/tmp/')
-data = pd.read_csv(
-    csv_file,
-    compression='gzip',
-    parse_dates=False,
-    low_memory=False)
-data = data[(data.date.notna()) & (data.city != 'Importados/Indefinidos') & (data.confirmed > 0)]
+#    print(csvFileName)
+#    return csvFileName
+# csv_file = get_csv_covid19brasilio('/tmp/')
+# data = pd.read_csv(
+#     csv_file,
+#     compression='gzip',
+#     parse_dates=False,
+#     low_memory=False)
+# data = data[(data.date.notna()) & (data.city != 'Importados/Indefinidos') & (data.confirmed > 0)]
 
-states = data[data.city.isna()]
-maxDate = states.date.max()
-statesToUpdate = states[(states.is_last == True) & (states.date != maxDate)]
-#print(statesToUpdate) # FOR DEBUG
+# states = data[data.city.isna()]
+# maxDate = states.date.max()
+# statesToUpdate = states[(states.is_last == True) & (states.date != maxDate)]
+# #print(statesToUpdate) # FOR DEBUG
 
-# Linhas 52-70: adiciona as informações faltantes dos estados, antes de computar as informacoes do pais.
-# Linhas 53-54: considera que existe apenas um dado (dia) faltante.
-#statesToUpdate.date = maxDate
-#states = states.append(statesToUpdate, ignore_index=True)
+# # Linhas 52-70: adiciona as informações faltantes dos estados, antes de computar as informacoes do pais.
+# # Linhas 53-54: considera que existe apenas um dado (dia) faltante.
+# #statesToUpdate.date = maxDate
+# #states = states.append(statesToUpdate, ignore_index=True)
 
-# Linhas 58-70: considera que pode haver mais de um dado (dia) faltante para os estados.
-# Nesse caso, o último dado é replicado para os dias (futuros) faltantes.
-def addMissingRows ( df, statesToUpdate, maxDate ) :
-    for index, row in statesToUpdate.iterrows():
+# # Linhas 58-70: considera que pode haver mais de um dado (dia) faltante para os estados.
+# # Nesse caso, o último dado é replicado para os dias (futuros) faltantes.
+# def addMissingRows ( df, statesToUpdate, maxDate ) :
+#     for index, row in statesToUpdate.iterrows():
 
-        date1 = df[df.state == row.state].date.max()
-        date1 = pd.to_datetime(date1, format='%Y-%m-%d').date()
-        date2 = pd.to_datetime(maxDate, format='%Y-%m-%d').date()
+#         date1 = df[df.state == row.state].date.max()
+#         date1 = pd.to_datetime(date1, format='%Y-%m-%d').date()
+#         date2 = pd.to_datetime(maxDate, format='%Y-%m-%d').date()
 
-        while (date1 < date2):
-            date1 = date1 + pd.to_timedelta(1, unit='d')
-            newRow = row
-            newRow.date = date1
-            df = df.append(newRow, ignore_index=True)
-    return df
+#         while (date1 < date2):
+#             date1 = date1 + pd.to_timedelta(1, unit='d')
+#             newRow = row
+#             newRow.date = date1
+#             df = df.append(newRow, ignore_index=True)
+#     return df
 
-#states.to_csv('country1.csv') # FOR DEBUG
-states = addMissingRows(states, statesToUpdate, maxDate)
-#states.to_csv('country2.csv') # FOR DEBUG
-states.state = 'BR' + STATE_CITY_SEP
-country = states.groupby(['date','state'])['confirmed'].sum().reset_index()
+# #states.to_csv('country1.csv') # FOR DEBUG
+# states = addMissingRows(states, statesToUpdate, maxDate)
+# #states.to_csv('country2.csv') # FOR DEBUG
+# states.state = 'BR' + STATE_CITY_SEP
+# country = states.groupby(['date','state'])['confirmed'].sum().reset_index()
 
-# A linha abaixo reinicia as infos dos estados.
-states = data[data.city.isna()]
+# # A linha abaixo reinicia as infos dos estados.
+# states = data[data.city.isna()]
 
-# Para usar os estados com as infos (dias) faltantes, as quais foram utilizadas para gerar os dados do pais,
-# basta descomentar a linha abaixo.
-states = addMissingRows(states, statesToUpdate, maxDate)
+# # Para usar os estados com as infos (dias) faltantes, as quais foram utilizadas para gerar os dados do pais,
+# # basta descomentar a linha abaixo.
+# states = addMissingRows(states, statesToUpdate, maxDate)
 
-cities = data[(data.is_last == True) & (~data.city.isna())].sort_values('confirmed').groupby('state').tail(12).city_ibge_code
-cities = data[data.city_ibge_code.isin(cities)]
+# cities = data[(data.is_last == True) & (~data.city.isna())].sort_values('confirmed').groupby('state').tail(12).city_ibge_code
+# cities = data[data.city_ibge_code.isin(cities)]
 
-states = pd.concat([states, cities])
-states.state = states.state + STATE_CITY_SEP + states.city.fillna('')
-
-states = states[['date', 'state', 'confirmed']]
-states = pd.concat([states, country])
-print(states) # FOR DEBUG
-states = states.rename(columns={'confirmed': 'positive'})
-states.date = pd.to_datetime(states.date)
-states = states.set_index(['state', 'date']).sort_index()
-#states.to_csv('brasil_io.csv') # FOR DEBUG
-#time.sleep(10000000) # FOR DEBUG
-
-# Linhas 101-131: importa dados do Portal do SUS
-# def get_csv_covid19br( outputFilePath ):
-#     url = 'https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/PortalGeral'
-#     values = {'X-Parse-Application-Id' : 'unAFkcaNDeXajurGB7LChj8SgQYS2ptm'}
-#     req  = urllib.request.Request( url, None, values )
-#     with urllib.request.urlopen(req) as response:
-#         data = json.loads(response.read())
-#         csvURL = data[ 'results' ][ 0 ][ 'arquivo' ][ 'url' ]
-#         csvFileName = csvURL[ csvURL.rfind('/') + 1 : ]
-#         print( 'csvURL:', csvURL )
-#         print( 'csvFileName:', csvFileName )
-#         urllib.request.urlretrieve( csvURL, outputFilePath + '/' + csvFileName )
-#         return outputFilePath + '/' + csvFileName
-# csv_file = get_csv_covid19br('/tmp')
-# data = pd.read_excel(csv_file)
-# data = data[data.data.notna()]
-
-# states = data[data.codmun.isna()]
-# states.estado = states.estado.fillna('BR')
-
-# cities = data[(data.data==data.data.max()) & (~data.municipio.isna())].sort_values('casosAcumulado').groupby('estado').tail(12).codmun
-# cities = data[data.codmun.isin(cities)]
 # states = pd.concat([states, cities])
-# states.estado = states.estado + STATE_CITY_SEP + states.municipio.fillna('')
+# states.state = states.state + STATE_CITY_SEP + states.city.fillna('')
 
-# #import pdb; pdb.set_trace()
-# states = states[['data', 'estado', 'casosAcumulado']]
-# print(states)
-# states = states.rename(columns={'data':'date', 'estado': 'state', 'casosAcumulado': 'positive'})
+# states = states[['date', 'state', 'confirmed']]
+# states = pd.concat([states, country])
+# print(states) # FOR DEBUG
+# states = states.rename(columns={'confirmed': 'positive'})
 # states.date = pd.to_datetime(states.date)
 # states = states.set_index(['state', 'date']).sort_index()
-# #states.to_csv('sus.csv')
+# #states.to_csv('brasil_io.csv') # FOR DEBUG
+# #time.sleep(10000000) # FOR DEBUG
+
+# Linhas 101-131: importa dados do Portal do SUS
+def get_csv_covid19br( outputFilePath ):
+    url = 'https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/PortalGeral'
+    values = {'X-Parse-Application-Id' : 'unAFkcaNDeXajurGB7LChj8SgQYS2ptm'}
+    req  = urllib.request.Request( url, None, values )
+    with urllib.request.urlopen(req) as response:
+        data = json.loads(response.read())
+        csvURL = data[ 'results' ][ 0 ][ 'arquivo' ][ 'url' ]
+        csvFileName = csvURL[ csvURL.rfind('/') + 1 : ]
+        print( 'csvURL:', csvURL )
+        print( 'csvFileName:', csvFileName )
+        urllib.request.urlretrieve( csvURL, outputFilePath + '/' + csvFileName )
+        return outputFilePath + '/' + csvFileName
+csv_file = get_csv_covid19br('/tmp')
+data = pd.read_excel(csv_file)
+data = data[data.data.notna()]
+
+states = data[data.codmun.isna()]
+states.estado = states.estado.fillna('BR')
+
+cities = data[(data.data==data.data.max()) & (~data.municipio.isna())].sort_values('casosAcumulado').groupby('estado').tail(12).codmun
+cities = data[data.codmun.isin(cities)]
+states = pd.concat([states, cities])
+states.estado = states.estado + STATE_CITY_SEP + states.municipio.fillna('')
+
+#import pdb; pdb.set_trace()
+states = states[['data', 'estado', 'casosAcumulado']]
+print(states)
+states = states.rename(columns={'data':'date', 'estado': 'state', 'casosAcumulado': 'positive'})
+states.date = pd.to_datetime(states.date)
+states = states.set_index(['state', 'date']).sort_index()
+#states.to_csv('sus.csv')
 
 def download_file(url, local_filename):
     """From https://stackoverflow.com/questions/16694907/"""
