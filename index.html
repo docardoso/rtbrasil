@@ -271,7 +271,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       Valores superiores a um indicam uma tendência de aumento do número de novos casos na respectiva unidade federativa.
       Valores próximos de um sugerem estabilidade do número de novos casos ao longo dos próximos dias. Maiores informações
       podem ser encontradas no link supracitado. Os dados referentes ao número de casos em cada estado são extraídos de
-      <a href="https://brasil.io/" target="_blank">brasil.io</a>.
+      <a href="https://covid.saude.gov.br" target="_blank">https://covid.saude.gov.br</a>.
     </p>
 
     <p class="w3-text-grey"><span class="w3-text-black">Nota 1:</span> no dia 23 de abril, o site
@@ -605,7 +605,8 @@ function addChart( estado ) {
                         color: Highcharts.getOptions().colors[0],
                         marker: {
                           enabled: false,
-                          symbol: 'circle'
+                          symbol: 'circle',
+                          radius: 2
                         }
                       } , {
                         useHTML: true,
@@ -616,7 +617,8 @@ function addChart( estado ) {
                         color: Highcharts.getOptions().colors[0],
                         marker: {
                           enabled: false,
-                          symbol: 'circle'
+                          symbol: 'circle',
+                          radius: 2
                         }
                       } , {
                         name: 'Erro',
@@ -629,7 +631,8 @@ function addChart( estado ) {
                         zIndex: 0,
                         marker: {
                           enabled: false,
-                          symbol: 'diamond'
+                          symbol: 'diamond',
+                          radius: 1.5
                         }
                       }]
          });
@@ -665,7 +668,7 @@ function addChart( estado ) {
     <p class="w3-text-grey">
       <ul class="w3-text-grey">
           <li>Ministério da Saúde Brasil: <a href="https://saude.gov.br" target="_blank">https://saude.gov.br</a></li>
-          <li>Painel Coronavírus Brasil: <a href="https://brasil.io/covid19/" target="_blank">https://brasil.io/covid19</a></li>
+          <li>Painel Coronavírus Brasil: <a href="https://covid.saude.gov.br" target="_blank">https://covid.saude.gov.br</a></li>
           <li>Mapa Interativo Corona Vírus Mundial Universidade Johns Hopkins: <a href="https://coronavirus.jhu.edu/map.html" target="_blank">https://coronavirus.jhu.edu/map.html</a></li>
         </ul>
     </p>
