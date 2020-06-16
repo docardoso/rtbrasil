@@ -128,15 +128,15 @@ print(deaths) # FOR DEBUG
 deaths = deaths.rename(columns={'data':'date', 'estado': 'state', 'obitosAcumulado': 'death'})
 deaths.date = pd.to_datetime(deaths.date)
 deaths = deaths.set_index(['state', 'date']).sort_index()
-deaths.to_csv('deaths.csv') # FOR DEBUG
+#deaths.to_csv('deaths.csv') # FOR DEBUG
 
 states = states[['data', 'estado', 'casosAcumulado']]
 print(states) # FOR DEBUG
 states = states.rename(columns={'data':'date', 'estado': 'state', 'casosAcumulado': 'positive'})
 states.date = pd.to_datetime(states.date)
 states = states.set_index(['state', 'date']).sort_index()
-states.to_csv('cases.csv') # FOR DEBUG
-time.sleep(10000000) # FOR DEBUG
+#states.to_csv('cases.csv') # FOR DEBUG
+#time.sleep(10000000) # FOR DEBUG
 
 def download_file(url, local_filename):
     """From https://stackoverflow.com/questions/16694907/"""
