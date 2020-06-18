@@ -18,6 +18,14 @@ def list_states():
     #return flask.jsonify(df.index.get_level_values('region').unique().tolist())
     return flask.jsonify(df.index.get_level_values('state').unique().tolist())
 
+@webapi.route('/list_cities/<state>')
+def list_cities(state):
+    df = pd.read_pickle('rt_brazil.pickle')
+    x = df.groupby('state').get_group(state)
+    x = x.index.get_level_values('city').unique()
+    x = x[x != ''].tolist()
+    return flask.jsonify(x)
+
 @webapi.route('/last_rt')
 def last_rt():
     df = pd.read_pickle('rt_brazil.pickle')
@@ -42,13 +50,20 @@ def rt_ts(state, city=''):
     y = (x.index - pd.Timestamp("1970-01-01")) // pd.Timedelta('1ms')
     return flask.jsonify([list(zip(y, x['mean'])), list(zip(y, x.lower_90, x.upper_90))])
 
-@webapi.route('/list_cities/<state>')
-def list_cities(state):
-    df = pd.read_pickle('rt_brazil.pickle')
-    x = df.groupby('state').get_group(state)
-    x = x.index.get_level_values('city').unique()
-    x = x[x != ''].tolist()
-    return flask.jsonify(x)
+@webapi.route('/last_cases_deaths')
+def last_cases_deaths():
+    df = pd.read_pickle('cases_deaths_brazil.pickle')
+    data = df[df.index.get_level_values('city') == ''].groupby('state').last()
+    print(data)
+    return flask.jsonify([data.index.tolist(), data[['positive', 'death']].values.tolist()])
+
+@webapi.route('/cases_deaths_ts/<state>')
+@webapi.route('/cases_deaths_ts/<state>/<city>')
+def cases_deaths_ts(state, city=''):
+    df = pd.read_pickle('cases_deaths_brazil.pickle')
+    x = df.groupby(['state', 'city']).get_group((state, city)).droplevel([0, 1])
+    y = (x.index - pd.Timestamp("1970-01-01")) // pd.Timedelta('1ms')
+    return flask.jsonify([list(zip(y, x[['positive', 'death']].values.tolist()))])
 
 if __name__ == '__main__':
     webapi.run(port=7777)

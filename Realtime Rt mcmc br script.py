@@ -122,20 +122,27 @@ cities = data[data.codmun.isin(cities)]
 states = pd.concat([states, cities])
 states.estado = states.estado + STATE_CITY_SEP + states.municipio.fillna('')
 
-#import pdb; pdb.set_trace()
-deaths = states[['data', 'estado', 'obitosAcumulado']]
-print(deaths) # FOR DEBUG
-deaths = deaths.rename(columns={'data':'date', 'estado': 'state', 'obitosAcumulado': 'death'})
-deaths.date = pd.to_datetime(deaths.date)
-deaths = deaths.set_index(['state', 'date']).sort_index()
-#deaths.to_csv('deaths.csv') # FOR DEBUG
+# Casos e óbtidos acumulados
+cases_deaths = states.copy()
+cases_deaths = cases_deaths[['data', 'estado', 'casosAcumulado', 'obitosAcumulado']]
+#print(cases_deaths) # FOR DEBUG
+cases_deaths = cases_deaths.rename(columns={'data':'date', 'estado': 'state', 'casosAcumulado': 'positive', 'obitosAcumulado': 'death'})
+cases_deaths.date = pd.to_datetime(cases_deaths.date)
+cases_deaths = cases_deaths.reset_index()
+cases_deaths[['state', 'city']] = cases_deaths.state.str.split(STATE_CITY_SEP, expand=True)
+cases_deaths = cases_deaths.set_index(['state', 'city', 'date']).sort_index()
+cases_deaths.to_pickle('cases_deaths_brazil.pickle')
+#cases_deaths.to_csv('cases_deaths.csv') # FOR DEBUG
+#time.sleep(10000000) # FOR DEBUG
 
 states = states[['data', 'estado', 'casosAcumulado']]
+#states = states[['data', 'estado', 'casosAcumulado', 'casosAcumulado', 'obitosAcumulado']]
 print(states) # FOR DEBUG
 states = states.rename(columns={'data':'date', 'estado': 'state', 'casosAcumulado': 'positive'})
+#states.columns = ['date', 'state', 'positive', 'cases', 'deaths']
 states.date = pd.to_datetime(states.date)
 states = states.set_index(['state', 'date']).sort_index()
-#states.to_csv('cases.csv') # FOR DEBUG
+#states.to_csv('states.csv') # FOR DEBUG
 #time.sleep(10000000) # FOR DEBUG
 
 def download_file(url, local_filename):
