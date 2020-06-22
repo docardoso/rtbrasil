@@ -63,7 +63,7 @@ def cases_deaths_ts(state, city=''):
     df = pd.read_pickle('cases_deaths_brazil.pickle')
     x = df.groupby(['state', 'city']).get_group((state, city)).droplevel([0, 1])
     y = (x.index - pd.Timestamp("1970-01-01")) // pd.Timedelta('1ms')
-    return flask.jsonify([list(zip(y, x[['positive', 'death']].values.tolist()))])
+    return flask.jsonify([list(zip(y, x.positive)), list(zip(y, x.death))])
 
 if __name__ == '__main__':
     webapi.run(port=7777)
