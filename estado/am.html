@@ -31,6 +31,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/boost.js"></script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
@@ -54,6 +55,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       exitFullscreen: 'Sair de tela cheia'
     }
   });
+
+  var categoria_rt = [];
+  var last_rt = [];
+  var error = [];
+
+  var categoria_cases = [];
+  var last_cases = [];
+
+  var categoria_deaths = [];
+  var last_deaths = [];
+
+  var charts = [];
+  var chartsIdx = 0;
+
+  var viewOption = "rt";
 </script>
 
 <style>
@@ -67,7 +83,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     background-color: Transparent;
     background-repeat: no-repeat;
     cursor:pointer;
-    overflow: hidden; 
+    overflow: hidden;
     display: none; /* Hidden by default */
     position: fixed; /* Fixed/sticky position */
     bottom: 20px; /* Place the button at the bottom of the page */
@@ -80,6 +96,50 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     text-shadow: 0 0 2px black;
   }
 
+  .switch_3_ways{
+    margin:auto;
+    font-size:0.9em;
+    height:2em;
+    line-height:2em;
+    border-radius:0.3em;
+    color: #333333;
+    background: #e6e6e6;
+    position:relative;
+    display:block;
+    float:right;
+    white-space:nowrap;
+  }
+  .switch.rt,
+  .switch.cases,
+  .switch.deaths{
+    cursor:pointer;
+    position:relative;
+    display:block;
+    float:left;
+    padding: 0 1em;
+    -webkit-transition: 300ms ease-out;
+    -moz-transition: 300ms ease-out;
+    transition: 300ms ease-out;
+  }
+  .switch.active{
+    color:white;
+    border-radius:0.3em;
+    -moz-box-shadow: 0px 0px 7px 1px #656565;
+    -webkit-box-shadow: 0px 0px 7px 1px #656565;
+    -o-box-shadow: 0px 0px 7px 1px #656565;
+    box-shadow: 0px 0px 7px 1px #656565;
+    /*filter:progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=NaN, Strength=7);*/
+  }
+  .switch.rt.active{
+    background-color:#777777;
+  }
+  .switch.cases.active{
+    background-color:#418d92;
+  }
+  .switch.deaths.active{
+    background-color:#ff6666;/* #2f7ed8; #418d92; #4d7ea9; */
+  }
+  
   .highcharts-figure, .highcharts-data-table table {
     min-width: 310px; 
     max-width: 1000px;
@@ -92,7 +152,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     vertical-align: middle;
   }
   
-  #container {
+  #chart-state {
     height: 400px;
     width: 100%;
   }
@@ -146,32 +206,40 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
   .highcharts-data-table tr:hover {
     background: #f1f7ff;
   }
-  .itemEstado {
-    flex-basis: calc(33.333% - 10px);
-    margin: 0 0px;
-    min-width: calc(100% * (1/4) - 1px);
-    height: 240px;
-    width: 100%;
+  .itemEstado {	
+    flex-basis: calc(33.333% - 10px);	
+    margin: 0 0px;	
+    min-width: calc(100% * (1/4) - 1px);	
+    height: 240px;	
+    width: 100%;	
+  }	
+  .item {	
+    flex-basis: calc(33.333% - 10px);	
+    margin: 0 0px;	
+    min-width: calc(100% * (1/4) - 1px);	
+    height: 240px;	
+  }	
+  .item:nth-child(3n+2),	
+  .item:nth-child(3n+3) {           /*  every 3rd element, start at 2nd and 3rd  */	
+    margin-left:15px;               /*  10px per item, divide with 2 gaps  */	
+  }	
+  .items{	
+    flex: 1;	
+    display: flex;	
+    flex-wrap: wrap;	
+    align-content: flex-start;	
+  }	
+  .items * {	
+    box-sizing: border-box;	
+  }	
+  .center {	
+    display: block;	
+    margin-left: auto;	
+    margin-right: auto;	
+    width: 40%;	
+    padding: 5px;	
+    min-width: 400px;	
   }
-  .item{
-    flex-basis: calc(33.333% - 10px);
-    margin: 0 0px; 
-    min-width: calc(100% * (1/4) - 1px);
-    height: 240px;
-  }
-.item:nth-child(3n+2),
-.item:nth-child(3n+3) {           /*  every 3rd element, start at 2nd and 3rd  */
-  margin-left:15px;               /*  10px per item, divide with 2 gaps  */
-  }
-.items{
-  flex: 1; 
-  display: flex; 
-  flex-wrap: wrap; 
-  align-content: flex-start;
- }
-.items * {
-  box-sizing: border-box;  
-}
   </style>
 </head>
 
@@ -223,12 +291,105 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       o COVID-19, contemplando o impacto de restrições à mobilidade social. Valores de R<sub>t</sub> inferiores à uma unidade 
       (R<sub>t</sub> < 1), refletem uma tendência de queda de novos casos. Valores superiores a um indicam uma tendência de aumento 
       do número de novos casos na respectiva unidade federativa. Valores próximos de um sugerem estabilidade do número de novos casos 
-      ao longo dos próximos dias. <span class="w3-text-black">Apresentamos tal estimativa para as 12 cidades com maior número de casos para cada unidade federativa 
-        do Brasil.</span> Os dados referentes ao número de casos são extraídos de <a href="https://covid.saude.gov.br" target="_blank">https://covid.saude.gov.br</a>.
+      ao longo dos próximos dias. <span class="w3-text-black">Apresentamos tal estimativa para as 12 cidades com maior número de casos para 
+      cada unidade federativa do Brasil, bem como o número acumulado de casos e o de mortes.</span> Os dados são extraídos 
+      de <a href="https://covid.saude.gov.br" target="_blank">https://covid.saude.gov.br</a>.
     </p>
     
     <p id="last_update"></p>
 
+    <div class="center">
+      <div class="switch_3_ways">
+        <div id="switch_rt" class="switch rt active" onclick="change_view('rt')">Parâmetro R<sub>t</sub></div>
+        <div id="switch_cases" class="switch cases" onclick="change_view('cases')">Número de casos</div>
+        <div id="switch_deaths" class="switch deaths" onclick="change_view('deaths')">Número de óbitos</div>
+      </div>
+    </div>
+
+    <script>
+      function change_view(option) {
+
+        if (option == viewOption) {
+          return;
+        }
+
+        var switch_rt = document.getElementById("switch_rt");
+        var switch_cases = document.getElementById("switch_cases");
+        var switch_deaths = document.getElementById("switch_deaths");
+        if (option == "rt") {
+          for (var i=0; i<charts.length; ++i) {
+            for (var j=3; j<7; ++j) {
+              if (charts[i].series[j].visible) {
+                charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+              }
+            }
+            for (var j=0; j<3; ++j) {
+              if (!charts[i].series[j].visible) {
+                charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+              }
+            }
+            charts[i].yAxis[0].update({title: {useHTML: true, text: 'R<sub>t</sub>'}}, false);
+            charts[i].yAxis[0].addPlotLine({id: 'rt1', color: 'red', dashStyle: 'shortdash', value: 1, width: 2});
+            charts[i].redraw();
+          }
+
+          switch_cases.className +=  "switch cases";
+          switch_deaths.className +=  "switch deaths";
+          setTimeout(function(){
+            switch_rt.className +=  "switch rt active";
+          },500);
+        } else if (option == "cases") {
+          for (var i=0; i<charts.length; ++i) {
+            for (var j=0; j<7; ++j) {
+              if (j>2 && j<5) {
+                if (!charts[i].series[j].visible) {
+                  charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+                }
+              } else {
+                if (charts[i].series[j].visible) {
+                  charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+                }
+              }
+            }
+            charts[i].yAxis[0].update({title: {useHTML: true, text: 'Casos'}}, false);
+            charts[i].yAxis[0].removePlotLine('rt1');
+            charts[i].redraw();
+          }
+
+          switch_rt.className +=  "switch rt";
+          switch_deaths.className +=  "switch deaths";
+          setTimeout(function(){
+            switch_cases.className +=  "switch cases active";
+          },500);
+        } else {
+          for (var i=0; i<charts.length; ++i) {
+            for (var j=0; j<5; ++j) {
+              if (charts[i].series[j].visible) {
+                charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+              }
+            }
+            for (var j=5; j<7; ++j) {
+              if (!charts[i].series[j].visible) {
+                charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+              }
+            }
+            charts[i].yAxis[0].update({title: {useHTML: true, text: 'Óbitos'}}, false);
+            charts[i].yAxis[0].removePlotLine('rt1');
+            charts[i].redraw();
+          }
+
+          switch_rt.className +=  "switch rt";
+          switch_cases.className +=  "switch cases";
+          setTimeout(function(){
+            switch_deaths.className +=  "switch deaths active";
+          },500);
+        }
+
+        viewOption = option;
+      }
+    </script>
+
+    <p>&nbsp;</p>
     <div id='chart-0' class='itemEstado'></div>
     <p>&nbsp;</p>
 
@@ -265,8 +426,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </style>
   
     <script>
-
-      var mainChart;
       var last_update;
       var model_update = '<span class="model_date">Metodologia atualizada em: 16/Maio/2020.</span>';
       var months = [ "Jan", "Fev", "Mar", "Abr", "Maio", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez" ];
@@ -277,182 +436,238 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         document.getElementById("last_update").innerHTML = last_update + ' ' + model_update;
       });
-      
-      function addChart( cidade, i ) {
-        return function(data) {
 
+      function addChart( cidade, i, url1, url2 ) {
+      $.getJSON(url1, function (rt) {
+        $.getJSON(url2, function (cases_deaths) {
           var days = 7;
-          var prediction = [];
+          var prediction_rt     = [];
+          var prediction_cases  = [];
+          var prediction_deaths = [];
           for (var j = days; j > 0; j--) {
-            prediction[j] = data[0].pop();
+            prediction_rt[j]     = rt[0].pop();
+            prediction_cases[j]  = cases_deaths[0].pop();
+            prediction_deaths[j] = cases_deaths[1].pop();
           }
-          var length = data[0].length - 1;
-          prediction[0] = data[0][length];
+          var length_rt     = rt[0].length - 1;
+          var length_cases  = cases_deaths[0].length - 1;
+          var length_deaths = cases_deaths[1].length - 1;
 
-          Highcharts.chart( "chart-" + i, {
-            title: {
-              style: {
-                fontSize: "15px"
-              },
-              align: 'center',
-              x: 22,
-              y: 19,
-              text: (function() {
-                if (cidade == 'AM'){
-                  return 'Estado';
-                } else {
-                  return cidade;
-                }
-                })()
-            },
+          prediction_rt[0]     = rt[0][length_rt];
+          prediction_cases[0]  = cases_deaths[0][length_cases];
+          prediction_deaths[0] = cases_deaths[1][length_deaths];
 
-            xAxis: {
-              type: 'datetime',
-              dateTimeLabelFormats: {
-                day: '%e/%b',
-                week: '%e/%b',
-                month: '%e/%b'
-              }
-            },
+          charts[chartsIdx++] = Highcharts.chart("chart-" + i, {
+                        title: {
+                          style: {
+                            fontSize: "15px"
+                          },
+                          align: 'center',
+                          x: 22,
+                          y: 19,
+                          text: (function() {
+                            if (cidade == 'AM'){
+                              return 'Estado';
+                            } else {
+                              return cidade;
+                            }
+                            })()
+                        },
 
-            exporting: {
-              buttons: {
-                  contextButton: {
-                      menuItems: [
-                          'viewFullscreen',
-                          'downloadPNG'
-                        ]
-                    }
-                }
-            },
+                        boost: {
+                          useGPUTranslations: true
+                        },
 
-            navigation: {
-              buttonOptions: {
-                enabled: true
-              }
-            },
+                        xAxis: {
+                          type: 'datetime',
+                          dateTimeLabelFormats: {
+                            day: '%e/%b',
+                            week: '%e/%b',
+                            month: '%e/%b'
+                          }
+                        },
 
-            yAxis: {
-              title: {
-                useHTML: true,
-                text: 'R<sub>t</sub>'
-              },
-              min: 0,//mainChart.yAxis[0].min,
-              //max: mainChart.yAxis[0].max,
-              startOnTick: true,
-              endOnTick: false,
-              //tickInterval: mainChart.yAxis[0].tickInterval,
-              //breaks: [{
-              //  from: mainChart.yAxis[0].min,
-              //  to: mainChart.yAxis[0].max,
-              //  breakSize: mainChart.yAxis[0].tickInterval
-              //}],
-              plotLines: [{
-                color: 'red',
-                dashStyle: 'shortdash',
-                value: 1,
-                width: 2
-              }]
-            },
+                        exporting: {
+                          buttons: {
+                              contextButton: {
+                                  menuItems: [
+                                      'viewFullscreen',
+                                      'downloadPNG'
+                                    ]
+                                }
+                            }
+                        },
 
-            legend: {
-              enabled: false
-            },
+                        navigation: {
+                          buttonOptions: {
+                            enabled: true
+                          }
+                        },
 
-            tooltip: {
-              useHTML: true,
-              crosshairs: true,
-              shared: true,
-              //dateTimeLabelFormats: {
-              //    day: '%A, %d/%b/%Y',
-              //    week: '%A, %d/%b/%Y',
-              //    month: '%A, %d/%b/%Y'
-              //},
-              //valueDecimals: 2,
-              formatter() {
-                if (this.x === prediction[0][0]) {
-                  var output1 = `<span style=font-size:10px>${ Highcharts.dateFormat('%A, %d/%b/%Y', new Date(this.x))}</span><br/>`
-                  this.points.forEach(point => {
-                    var y = Highcharts.numberFormat(point.point.y, 2)
-                    var low = Highcharts.numberFormat(point.point.low, 2)
-                    var high = Highcharts.numberFormat(point.point.high, 2)
-                    if (point.series.name == "Erro") {
-                      output1 += `<span style="color:${point.color}">◆</span> ${point.series.name}: <b>${low}</b> - <b>${high}</b><br/>`
-                    } else {
-                      if (point.series.name == "R<sub>t</sub> preliminar") {
-                        return
-                      } else {
-                        output1 += `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${y}</b><br/>`
-                      }
-                    }
-                  })
-                  return output1
-                } else {
-                  var output2 = `<span style=font-size:10px>${ Highcharts.dateFormat('%A, %d/%b/%Y', new Date(this.x))}</span><br/>`
-                  this.points.forEach(point => {
-                    var y = Highcharts.numberFormat(point.point.y, 2)
-                    var low = Highcharts.numberFormat(point.point.low, 2)
-                    var high = Highcharts.numberFormat(point.point.high, 2)
-                    if (point.series.name == "Erro") {
-                      output2 += `<span style="color:${point.color}">◆</span> ${point.series.name}: <b>${low}</b> - <b>${high}</b><br/>`
-                    } else {
-                      output2 += `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${y}</b><br/>`
-                    }
-                  })
-                  return output2
-                }
-              }
-            },
+                        yAxis: {
+                          title: {
+                            useHTML: true,
+                            text: 'R<sub>t</sub>'
+                          },
+                          min: 0,
+                          startOnTick: true,
+                          endOnTick: true,
+                          plotLines: [{
+                            id: 'rt1',
+                            color: 'red',
+                            dashStyle: 'shortdash',
+                            value: 1,
+                            width: 2
+                          }]
+                        },
 
-            series: [{
-              useHTML: true,
-              name: 'R<sub>t</sub>',
-              data: data[0],
-              zIndex: 1,
-              color: Highcharts.getOptions().colors[0],
-              marker: {
-                enabled: false,
-                symbol: 'circle',
-                radius: 2
-              }
-            } , {
-              useHTML: true,
-              name: 'R<sub>t</sub> preliminar',
-              data: prediction,
-              dashStyle: 'dot',
-              zIndex: 1,
-              color: Highcharts.getOptions().colors[0],
-              marker: {
-                enabled: false,
-                symbol: 'circle',
-                radius: 2
-              }
-            } , {
-              name: 'Erro',
-              data: data[1],
-              type: 'arearange',
-              lineWidth: 0,
-              linkedTo: ':previous',
-              color: Highcharts.getOptions().colors[0],
-              fillOpacity: 0.3,
-              zIndex: 0,
-              marker: {
-                enabled: false,
-                symbol: 'diamond',
-                radius: 1.5
-              }
-            }]
+                        legend: {
+                          enabled: false
+                        },
+
+                        tooltip: {
+                          useHTML: true,
+                          crosshairs: true,
+                          shared: true,
+                          formatter() {
+                            if (this.x === prediction_rt[0][0]) {
+                              var output1 = `<span style=font-size:10px>${ Highcharts.dateFormat('%A, %d/%b/%Y', new Date(this.x))}</span><br/>`
+                              this.points.forEach(point => {
+                                var y = Highcharts.numberFormat(point.point.y, 2)
+                                var low = Highcharts.numberFormat(point.point.low, 2)
+                                var high = Highcharts.numberFormat(point.point.high, 2)
+                                if (point.series.name == "Erro") {
+                                  output1 += `<span style="color:${point.color}">◆</span> ${point.series.name}: <b>${low}</b> - <b>${high}</b><br/>`
+                                } else {
+                                  if (point.series.name == "R<sub>t</sub> preliminar") {
+                                    return
+                                  } else {
+                                    output1 += `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${y}</b><br/>`
+                                  }
+                                }
+                              })
+                              return output1
+                            } else {
+                              var output2 = `<span style=font-size:10px>${ Highcharts.dateFormat('%A, %d/%b/%Y', new Date(this.x))}</span><br/>`
+                              this.points.forEach(point => {
+                                var y = Highcharts.numberFormat(point.point.y, 2)
+                                var low = Highcharts.numberFormat(point.point.low, 2)
+                                var high = Highcharts.numberFormat(point.point.high, 2)
+                                if (point.series.name == "Erro") {
+                                  output2 += `<span style="color:${point.color}">◆</span> ${point.series.name}: <b>${low}</b> - <b>${high}</b><br/>`
+                                } else {
+                                  output2 += `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${y}</b><br/>`
+                                }
+                              })
+                              return output2
+                            }
+                          }
+                        },
+
+                        series: [{
+                          useHTML: true,
+                          name: 'R<sub>t</sub>',
+                          data: rt[0],
+                          zIndex: 1,
+                          color: Highcharts.getOptions().colors[0],
+                          marker: {
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        } , {
+                          useHTML: true,
+                          name: 'R<sub>t</sub> preliminar',
+                          data: prediction_rt,
+                          dashStyle: 'dot',
+                          zIndex: 1,
+                          color: Highcharts.getOptions().colors[0],
+                          marker: {
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        } , {
+                          name: 'Erro',
+                          data: rt[1],
+                          type: 'arearange',
+                          lineWidth: 0,
+                          linkedTo: ':previous',
+                          color: Highcharts.getOptions().colors[0],
+                          fillOpacity: 0.3,
+                          zIndex: 0,
+                          marker: {
+                            enabled: false,
+                            symbol: 'diamond',
+                            radius: 1.5
+                          }
+                        } , {
+                          useHTML: true,
+                          name: 'Casos',
+                          data: cases_deaths[0],
+                          zIndex: 1,
+                          color: '#418d92',
+                          visible: false,
+                          marker: {
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        } , {
+                          useHTML: true,
+                          name: 'Casos preliminares',
+                          data: prediction_cases,
+                          dashStyle: 'dot',
+                          zIndex: 1,
+                          color: '#418d92',
+                          visible: false,
+                          marker: {
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        } , {
+                          useHTML: true,
+                          name: 'Óbitos',
+                          data: cases_deaths[1],
+                          zIndex: 1,
+                          color: '#ff6666',
+                          visible: false,
+                          marker: {
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        } , {
+                          useHTML: true,
+                          name: 'Óbitos preliminares',
+                          data: prediction_deaths,
+                          dashStyle: 'dot',
+                          zIndex: 1,
+                          color: '#ff6666',
+                          visible: false,
+                          marker: {
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        }]
           });
-        }
+          });
+        });
       }
-      
+
       $.getJSON( "https://rtbrazilapi.herokuapp.com/list_cities/AM", function( cidades ) {
-        $.getJSON( "https://rtbrazilapi.herokuapp.com/rt_ts/AM", addChart( "AM", 0 ));
+        var URL_rt = "https://rtbrazilapi.herokuapp.com/rt_ts/AM";
+        var URL_cases_deaths = "https://rtbrazilapi.herokuapp.com/cases_deaths_ts/AM";
+        addChart( "AM", 0, URL_rt, URL_cases_deaths );
         for (var i = 0; i < cidades.length; i++) {
-          $.getJSON( "https://rtbrazilapi.herokuapp.com/rt_ts/AM/" + cidades[i], addChart( cidades[i], (i + 1) ));
+          URL_rt = "https://rtbrazilapi.herokuapp.com/rt_ts/AM/" + cidades[i];
+          URL_cases_deaths = "https://rtbrazilapi.herokuapp.com/cases_deaths_ts/AM/" + cidades[i];
+
+          addChart( cidades[i], (i + 1), URL_rt, URL_cases_deaths );
         }
       });
-      
     </script>
 
     <p class="w3-text-black"><b><u>Observações importantes</u></b></p>
