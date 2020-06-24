@@ -51,6 +51,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       rangeSelectorZoom: "Periodo",
       downloadPNG: 'Baixar imagem PNG',
       decimalPoint: ',',
+      thousandsSep: '.',
       viewFullscreen: 'Ver em tela cheia',
       exitFullscreen: 'Sair de tela cheia'
     }
@@ -116,7 +117,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     position:relative;
     display:block;
     float:left;
-    padding: 0 1em;
+    padding: 0 0.5em;
     -webkit-transition: 300ms ease-out;
     -moz-transition: 300ms ease-out;
     transition: 300ms ease-out;
@@ -275,15 +276,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End scroll to top -->
 
 <!-- Header -->
-<header class="w3-container w3-black w3-center" style="padding:16px 16px">
+<header class="w3-container w3-black w3-center" style="padding:8px 8px">
   <h1 class="w3-margin w3-jumbo">Monitor COVID-19</h1>
-  <h1 style="font-size:30px;">Goiás</h1>
 </header>
 
 <!-- First Grid -->
-<div class="w3-row-padding w3-padding-16 w3-container">
+<div class="w3-row-padding w3-padding-8 w3-container">
   <div class="w3-content">
-    <h1><img src="../flags/GO.png" class="flag"><i class="w3-padding-16 w3-text-black w3-margin-right"></i> R<sub>t</sub> live</h1>
+    <h1><img src="../flags/GO.png" class="flag"><i class="w3-padding-8 w3-text-black w3-margin-right"></i> Goiás</h1>
 
     <p class="w3-text-grey">Baseados rigorosamente na metodologia apresentada no site <a href="https://rt.live" target="_blank">https://rt.live</a>, 
       exibimos aqui os valores atualizados de estimativas do parâmetro R<sub>t</sub>, o qual afere a rapidez com que o COVID-19 está 
@@ -291,10 +291,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       o COVID-19, contemplando o impacto de restrições à mobilidade social. Valores de R<sub>t</sub> inferiores à uma unidade 
       (R<sub>t</sub> < 1), refletem uma tendência de queda de novos casos. Valores superiores a um indicam uma tendência de aumento 
       do número de novos casos na respectiva unidade federativa. Valores próximos de um sugerem estabilidade do número de novos casos 
-      ao longo dos próximos dias. <span class="w3-text-black">Apresentamos tal estimativa para as 12 cidades com maior número de casos para 
-      cada unidade federativa do Brasil, bem como o número acumulado de casos e o de mortes.</span> Os dados são extraídos 
-      de <a href="https://covid.saude.gov.br" target="_blank">https://covid.saude.gov.br</a>.
-    </p>
+      ao longo dos próximos dias.</p>
+    <p class="w3-text-black">Apresentamos tal estimativa para as 12 cidades com maior número de casos para 
+      cada unidade federativa do Brasil, bem como o número acumulado de casos e o de mortes.<span class="w3-text-grey"> Os dados são extraídos 
+      de <a href="https://covid.saude.gov.br" target="_blank">https://covid.saude.gov.br</a>.</span></p>
     
     <p id="last_update"></p>
 
@@ -530,16 +530,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           crosshairs: true,
                           shared: true,
                           formatter() {
-                            if (this.x === prediction_rt[0][0]) {
+                            if (this.x == prediction_rt[0][0] || this.x == prediction_cases[0][0] || this.x == prediction_deaths[0][0]) {
                               var output1 = `<span style=font-size:10px>${ Highcharts.dateFormat('%A, %d/%b/%Y', new Date(this.x))}</span><br/>`
                               this.points.forEach(point => {
-                                var y = Highcharts.numberFormat(point.point.y, 2)
+                                var y = Highcharts.numberFormat(point.point.y, 0)
+                                if (point.series.name.includes("R<sub>t</sub>", 0)) {
+                                  y = Highcharts.numberFormat(point.point.y, 2)
+                                }
                                 var low = Highcharts.numberFormat(point.point.low, 2)
                                 var high = Highcharts.numberFormat(point.point.high, 2)
                                 if (point.series.name == "Erro") {
                                   output1 += `<span style="color:${point.color}">◆</span> ${point.series.name}: <b>${low}</b> - <b>${high}</b><br/>`
                                 } else {
-                                  if (point.series.name == "R<sub>t</sub> preliminar") {
+                                  if (point.series.name.includes("preliminar", 0)) {
                                     return
                                   } else {
                                     output1 += `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${y}</b><br/>`
@@ -550,7 +553,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             } else {
                               var output2 = `<span style=font-size:10px>${ Highcharts.dateFormat('%A, %d/%b/%Y', new Date(this.x))}</span><br/>`
                               this.points.forEach(point => {
-                                var y = Highcharts.numberFormat(point.point.y, 2)
+                                var y = Highcharts.numberFormat(point.point.y, 0)
+                                if (point.series.name.includes("R<sub>t</sub>", 0)) {
+                                  y = Highcharts.numberFormat(point.point.y, 2)
+                                }
                                 var low = Highcharts.numberFormat(point.point.low, 2)
                                 var high = Highcharts.numberFormat(point.point.high, 2)
                                 if (point.series.name == "Erro") {
@@ -571,6 +577,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           zIndex: 1,
                           color: Highcharts.getOptions().colors[0],
                           marker: {
+                            states:{
+                              hover: {
+                                enabled: false
+                              }
+                            },
                             enabled: false,
                             symbol: 'circle',
                             radius: 2
@@ -583,6 +594,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           zIndex: 1,
                           color: Highcharts.getOptions().colors[0],
                           marker: {
+                            states:{
+                              hover: {
+                                enabled: false
+                              }
+                            },
                             enabled: false,
                             symbol: 'circle',
                             radius: 2
@@ -592,11 +608,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           data: rt[1],
                           type: 'arearange',
                           lineWidth: 0,
-                          linkedTo: ':previous',
+                          //linkedTo: ':previous',
                           color: Highcharts.getOptions().colors[0],
                           fillOpacity: 0.3,
                           zIndex: 0,
                           marker: {
+                            states:{
+                              hover: {
+                                enabled: false
+                              }
+                            },
                             enabled: false,
                             symbol: 'diamond',
                             radius: 1.5
@@ -680,9 +701,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 
 <!-- Second Grid -->
-<div class="w3-row-padding w3-light-grey w3-padding-16 w3-container">
+<div class="w3-row-padding w3-light-grey w3-padding-8 w3-container">
   <div class="w3-content">
-    <h1><i class="fa fa-external-link w3-padding-16 w3-text-black w3-margin-right"></i> Links úteis</h1>
+    <h1><i class="fa fa-external-link w3-padding-8 w3-text-black w3-margin-right"></i> Links úteis</h1>
 
     <p class="w3-text-grey">
       <ul class="w3-text-grey">
@@ -712,9 +733,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 
 <!-- Third Grid -->
-<div class="w3-row-padding w3-padding-16 w3-container">
+<div class="w3-row-padding w3-padding-8 w3-container">
   <div class="w3-content">
-    <h1><i class="fa fa-address-card w3-padding-16 w3-text-black w3-margin-right"></i> Sobre</h1>
+    <h1><i class="fa fa-address-card w3-padding-8 w3-text-black w3-margin-right"></i> Sobre</h1>
 
     <p class="w3-text-grey">Essa iniciativa tem como objetivo informar a população e os tomadores de decisão no Brasil acerca dos
         últimos dados de disseminação do Corona Vírus na comunidade brasileira. Esperamos poder contribuir para uma tomada de
