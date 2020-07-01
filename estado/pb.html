@@ -89,8 +89,8 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     overflow: hidden;
     display: none; /* Hidden by default */
     position: fixed; /* Fixed/sticky position */
-    bottom: 30px; /* Place the button at the bottom of the page */
-    right: 30px; /* Place the button 30px from the right */
+    bottom: 20px; /* Place the button at the bottom of the page */
+    right: 20px; /* Place the button 30px from the right */
     margin: auto;
     z-index: 99; /* Make sure it does not overlap */
     border: none; /* Remove borders */
@@ -132,7 +132,6 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     -webkit-box-shadow: 0px 0px 7px 1px #656565;
     -o-box-shadow: 0px 0px 7px 1px #656565;
     box-shadow: 0px 0px 7px 1px #656565;
-    /*filter:progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=NaN, Strength=7);*/
   }
   .switch.rt.active{
     background-color:#777777;
@@ -145,14 +144,14 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
   }
   
   .highcharts-figure, .highcharts-data-table table {
-    min-width: 310px; 
-    max-width: 1000px;
+    min-width: 310px;
+    max-width: 100%;
     margin: 2em auto;
   }
 
   .flag {
-    width: 32px;
-    height: 32px;
+    width: 20px;
+    height: 20px;
     vertical-align: middle;
   }
   
@@ -240,7 +239,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     display: block;	
     margin-left: auto;	
     margin-right: auto;	
-    width: 40%;	
+    width: 33.3%;
     padding: 5px;	
     min-width: 400px;	
   }
@@ -279,14 +278,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End scroll to top -->
 
 <!-- Header -->
-<header class="w3-container w3-black w3-center" style="padding:8px 8px">
-  <h1 class="w3-margin w3-jumbo">Monitor COVID-19</h1>
+<header class="w3-container w3-black w3-center">
+  <h1 class="w3-xxlarge"><b>Monitor COVID-19</b></h1>
 </header>
 
 <!-- First Grid -->
 <div class="w3-row-padding w3-padding-8 w3-container">
-  <div class="w3-content">
-    <h1><img src="../flags/PB.png" class="flag"><i class="w3-padding-8 w3-text-black w3-margin-right"></i> Paraíba</h1>
+  <div class="w3-auto">
+    <h1 class="w3-xlarge"><img src="../flags/PB.png" class="flag"><i class="w3-padding-8 w3-text-black w3-margin-right"></i> Paraíba</h1>
 
     <p class="w3-text-grey">Baseados rigorosamente na metodologia apresentada no site <a href="https://rt.live" target="_blank">https://rt.live</a>, 
       exibimos aqui os valores atualizados de estimativas do parâmetro R<sub>t</sub>, o qual afere a rapidez com que o COVID-19 está 
@@ -303,9 +302,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="center">
       <div class="switch_3_ways">
-        <div id="switch_rt" class="switch rt active" onclick="change_view('rt')">Parâmetro R<sub>t</sub></div>
-        <div id="switch_cases" class="switch cases" onclick="change_view('cases')">Número de casos</div>
-        <div id="switch_deaths" class="switch deaths" onclick="change_view('deaths')">Número de óbitos</div>
+        <div id="switch_rt" class="switch rt active" onclick="change_view('rt')" style="text-align:center">Parâmetro R<sub>t</sub></div>
+        <div id="switch_cases" class="switch cases" onclick="change_view('cases')" style="text-align:center">Número de casos</div>
+        <div id="switch_deaths" class="switch deaths" onclick="change_view('deaths')" style="text-align:center">Número de óbitos</div>
       </div>
     </div>
 
@@ -705,8 +704,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- Second Grid -->
 <div class="w3-row-padding w3-light-grey w3-padding-8 w3-container">
-  <div class="w3-content">
-    <h1><i class="fa fa-external-link w3-padding-8 w3-text-black w3-margin-right"></i> Links úteis</h1>
+  <div class="w3-auto">
+    <h1 class="w3-xlarge"><i class="fa fa-external-link w3-padding-8 w3-text-black w3-margin-right"></i> Links úteis</h1>
 
     <p class="w3-text-grey">
       <ul class="w3-text-grey">
@@ -737,8 +736,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- Third Grid -->
 <div class="w3-row-padding w3-padding-8 w3-container">
-  <div class="w3-content">
-    <h1><i class="fa fa-address-card w3-padding-8 w3-text-black w3-margin-right"></i> Sobre</h1>
+  <div class="w3-auto">
+    <h1 class="w3-xlarge"><i class="fa fa-address-card w3-padding-8 w3-text-black w3-margin-right"></i> Sobre</h1>
 
     <p class="w3-text-grey">Essa iniciativa tem como objetivo informar a população e os tomadores de decisão no Brasil acerca dos
         últimos dados de disseminação do Corona Vírus na comunidade brasileira. Esperamos poder contribuir para uma tomada de
@@ -809,7 +808,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 
 <div class="w3-container w3-black w3-center w3-opacity w3-padding-8">
-  <h1 class="w3-margin w3-xsmall">
+  <h1 class="w3-xlarge">
     <a href="https://pt-br.facebook.com/cefetcampuspetropolis" target="_blank" style="text-decoration:none" class="fa fa-facebook-official w3-hover-opacity border-bottom: 1px solid #000"></a>
     <a href="https://www.instagram.com/cefetcampuspetropolis" target="_blank" style="text-decoration:none" class="fa fa-instagram w3-hover-opacity border-bottom: 1px solid #000"></a>
     <a href="https://twitter.com/cefet_rj?lang=en" target="_blank" style="text-decoration:none" class="fa fa-twitter-square w3-hover-opacity"></a>
