@@ -635,7 +635,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       document.getElementById("last_update").innerHTML = last_update + ' ' + model_update;
     });
     
-    Highcharts.getJSON('https://rtbrazilapi.herokuapp.com/last_rt', function (data) {
+    $.getJSON('https://rtbrazilapi.herokuapp.com/last_rt', function (data) {
       $.getJSON('https://rtbrazilapi.herokuapp.com/last_cases_deaths', function(json) {
         // Rt
         var last_rt_data = [];
