@@ -169,6 +169,7 @@ except:
 # Load the patient CSV
 patients = pd.read_csv(
     LINELIST_PATH,
+    skiprows=1,
     compression='gzip',
     parse_dates=False,
     low_memory=False)
