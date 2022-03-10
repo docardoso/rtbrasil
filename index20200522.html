@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WD59BZN');</script>
+<!-- End Google Tag Manager -->
+
+<title>Monitor COVID-19</title>
+<meta charset="UTF-8">
+<meta name="description" content="Monitoriamento da COVID-19 baseado na metodologia apresentada no site https://rt.live">
+<meta name="keywords" content="Coronavirus,Corona-19,Corona,COVID,COVID-19,RT live,Monitoramento,Monitor,Pandemia,Epidemia">
+<meta name="author" content="Diego Barreto Haddad,Douglas de Oliveira Cardoso,Jurair Rosa de Paula Junior,Laura Silva de Assis,Luis Carlos dos Santos Coutinho Retondaro,Luís Domingues Tomé Jardim Tarrataca,Pedro Carlos da Silva Lara">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta property="og:title" content="Monitor da COVID-19"/>
+<meta property="og:image" content="shareIcon.png"/>
+<meta property="og:description" content="Você gostaria de saber como é que o COVID19 está evoluindo no Brasil? Como se está espalhando no seu estado? Gostaria de perceber se a tendência de contaminação está crescendo ou diminuindo? Consulte aqui."/>
+<meta property="og:url" content="http://monitorcovid.com.br/"/>
+
+<link rel="icon" href="icon.png" type="image/png">
+<link rel="stylesheet" href="template/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel=”stylesheet” href=”https://raw.githubusercontent.com/jpswalsh/academicons/master/css/academicons.css”>
+<link rel="stylesheet" href="https://cdn.rawgit.com/jpswalsh/academicons/master/css/academicons.min.css">
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<script>
+  var highchartsOptions = Highcharts.setOptions({
+  lang: {
+        loading: 'Aguarde...',
+        months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+        weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+        shortMonths: ['Jan', 'Feb', 'Mar', 'Abr', 'Maio', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+        exportButtonTitle: "Exportar",
+        printButtonTitle: "Imprimir",
+        rangeSelectorFrom: "De",
+        rangeSelectorTo: "Até",
+        rangeSelectorZoom: "Periodo",
+        downloadPNG: 'Baixar imagem PNG',
+        decimalPoint: ',',
+        viewFullscreen: 'Ver em tela cheia',
+        exitFullscreen: 'Sair de tela cheia'
+        }
+  });
+</script>
+
+<script>
+  var flagsMap = {
+    'BR': 'url(flags/BR.png)',
+    'AC': 'url(flags/AC.png)',
+    'AL': 'url(flags/AL.png)',
+    'AM': 'url(flags/AM.png)',
+    'AP': 'url(flags/AP.png)',
+    'BA': 'url(flags/BA.png)',
+    'CE': 'url(flags/CE.png)',
+    'DF': 'url(flags/DFg.png)',
+    'ES': 'url(flags/ES.png)',
+    'GO': 'url(flags/GO.png)',
+    'MA': 'url(flags/MA.png)',
+    'MG': 'url(flags/MG.png)',
+    'MS': 'url(flags/MS.png)',
+    'MT': 'url(flags/MT.png)',
+    'PA': 'url(flags/PA.png)',
+    'PB': 'url(flags/PB.png)',
+    'PE': 'url(flags/PE.png)',
+    'PI': 'url(flags/PI.png)',
+    'PR': 'url(flags/PR.png)',
+    'RJ': 'url(flags/RJ.png)',
+    'RN': 'url(flags/RN.png)',
+    'RO': 'url(flags/RO.png)',
+    'RR': 'url(flags/RR.png)',
+    'RS': 'url(flags/RS.png)',
+    'SC': 'url(flags/SC.png)',
+    'SE': 'url(flags/SE.png)',
+    'SP': 'url(flags/SP.png)',
+    'TO': 'url(flags/TO.png)',
+  };
+</script>
+
+<script>
+  var tooltipsMap = {
+    'BR': '',
+    'AC': 'Dados dos municípios disponíveis.',
+    'AL': 'Dados dos municípios disponíveis.',
+    'AM': 'Dados dos municípios disponíveis.',
+    'AP': 'Dados dos municípios disponíveis.',
+    'BA': 'Dados dos municípios disponíveis.',
+    'CE': 'Dados dos municípios disponíveis.',
+    'DF': '',
+    'ES': 'Dados dos municípios disponíveis.',
+    'GO': 'Dados dos municípios disponíveis.',
+    'MA': 'Dados dos municípios disponíveis.',
+    'MG': 'Dados dos municípios disponíveis.',
+    'MS': 'Dados dos municípios disponíveis.',
+    'MT': 'Dados dos municípios disponíveis.',
+    'PA': 'Dados dos municípios disponíveis.',
+    'PB': 'Dados dos municípios disponíveis.',
+    'PE': 'Dados dos municípios disponíveis.',
+    'PI': 'Dados dos municípios disponíveis.',
+    'PR': 'Dados dos municípios disponíveis.',
+    'RJ': 'Dados dos municípios disponíveis.',
+    'RN': 'Dados dos municípios disponíveis.',
+    'RO': 'Dados dos municípios disponíveis.',
+    'RR': 'Dados dos municípios disponíveis.',
+    'RS': 'Dados dos municípios disponíveis.',
+    'SC': 'Dados dos municípios disponíveis.',
+    'SE': 'Dados dos municípios disponíveis.',
+    'SP': 'Dados dos municípios disponíveis.',
+    'TO': 'Dados dos municípios disponíveis.',
+  };
+</script>
+
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
+.w3-bar,h1,button {font-family: "Montserrat", sans-serif}
+.fa-anchor,.fa-coffee {font-size:200px}
+</style>
+
+<style>
+  .highcharts-figure, .highcharts-data-table table {
+    min-width: 310px; 
+    max-width: 1000px;
+    margin: 2em auto;
+  }
+  
+  #container {
+    height: 400px;
+    width: 100%;
+  }
+
+  .model_date {
+    font-size: 0.9em;
+    border: 2px;
+    border-radius: 10px;
+    padding: 5px;
+    color: #333333;
+    background-color: #e6e6e6;
+    white-space: nowrap;
+    line-height: 2.5;
+  }
+
+  .date {
+    font-size: 0.9em;
+    border: 2px;
+    border-radius: 10px;
+    padding: 5px;
+    color: #186F4A;
+    background-color: #C5F2DF;
+    white-space: nowrap;
+    line-height: 2.5;
+  }
+  
+  .highcharts-data-table table {
+    font-family: Verdana, sans-serif;
+    border-collapse: collapse;
+    border: 1px solid #EBEBEB;
+    margin: 10px auto;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+  }
+  .highcharts-data-table caption {
+    padding: 1em 0;
+    font-size: 1.2em;
+    color: #555;
+  }
+  .highcharts-data-table th {
+    font-weight: 600;
+    padding: 0.5em;
+  }
+  .highcharts-data-table td, .highcharts-data-table th, .highcharts-data-table caption {
+    padding: 0.5em;
+  }
+  .highcharts-data-table thead tr, .highcharts-data-table tr:nth-child(even) {
+    background: #f8f8f8;
+  }
+  .highcharts-data-table tr:hover {
+    background: #f1f7ff;
+  }
+  .itemBR {
+    flex-basis: calc(33.333% - 10px);
+    margin: 0 0px;
+    min-width: calc(100% * (1/4) - 1px);
+    height: 240px;
+    width: 100%;
+  }
+  .item {
+    flex-basis: calc(33.333% - 10px);
+    margin: 0 0px;
+    min-width: calc(100% * (1/4) - 1px);
+    height: 240px;
+  }
+  .item:nth-child(3n+2),
+  .item:nth-child(3n+3) {           /*  every 3rd element, start at 2nd and 3rd  */
+    margin-left:15px;               /*  10px per item, divide with 2 gaps  */
+  }
+  .items{
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+  }
+  .items * {
+    box-sizing: border-box;
+  }
+</style>
+</head>
+
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WD59BZN"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- Subpages -->
+<a id="AC" href="estado/ac.html" target="_blank"></a>
+<a id="AL" href="estado/al.html" target="_blank"></a>
+<a id="AM" href="estado/am.html" target="_blank"></a>
+<a id="AP" href="estado/ap.html" target="_blank"></a>
+<a id="BA" href="estado/ba.html" target="_blank"></a>
+<a id="CE" href="estado/ce.html" target="_blank"></a>
+<a id="ES" href="estado/es.html" target="_blank"></a>
+<a id="GO" href="estado/go.html" target="_blank"></a>
+<a id="MA" href="estado/ma.html" target="_blank"></a>
+<a id="MG" href="estado/mg.html" target="_blank"></a>
+<a id="MS" href="estado/ms.html" target="_blank"></a>
+<a id="MT" href="estado/mt.html" target="_blank"></a>
+<a id="PA" href="estado/pa.html" target="_blank"></a>
+<a id="PB" href="estado/pb.html" target="_blank"></a>
+<a id="PE" href="estado/pe.html" target="_blank"></a>
+<a id="PI" href="estado/pi.html" target="_blank"></a>
+<a id="PR" href="estado/pr.html" target="_blank"></a>
+<a id="RJ" href="estado/rj.html" target="_blank"></a>
+<a id="RN" href="estado/rn.html" target="_blank"></a>
+<a id="RO" href="estado/ro.html" target="_blank"></a>
+<a id="RR" href="estado/rr.html" target="_blank"></a>
+<a id="RS" href="estado/rs.html" target="_blank"></a>
+<a id="SC" href="estado/sc.html" target="_blank"></a>
+<a id="SE" href="estado/se.html" target="_blank"></a>
+<a id="SP" href="estado/sp.html" target="_blank"></a>
+<a id="TO" href="estado/to.html" target="_blank"></a>
+<!-- End Subpages -->
+
+<!-- Header -->
+<header class="w3-container w3-black w3-center" style="padding:16px 16px">
+  <h1 class="w3-margin w3-jumbo">Monitor COVID-19</h1>
+</header>
+
+<!-- First Grid -->
+<div class="w3-row-padding w3-padding-16 w3-container">
+  <div class="w3-content">
+    <h1><i class="fa fa-globe w3-padding-16 w3-text-black w3-margin-right"></i> R<sub>t</sub> live</h1>
+
+    <p class="w3-text-grey">Baseados rigorosamente na metodologia apresentada no site <a href="https://rt.live" target="_blank">https://rt.live</a>,
+      exibimos aqui os valores atualizados de estimativas do parâmetro R<sub>t</sub>, o qual afere a rapidez com que o COVID-19 está se
+      disseminando, nas unidades federativas do Brasil. Grosso modo, este parâmetro reflete quantas pessoas, em média,
+      são contaminadas por cada indivíduo que adquire o COVID-19, contemplando o impacto de restrições à mobilidade social.
+      Valores de R<sub>t</sub> inferiores à uma unidade (R<sub>t</sub> < 1), refletem uma tendência de queda de novos casos.
+      Valores superiores a um indicam uma tendência de aumento do número de novos casos na respectiva unidade federativa.
+      Valores próximos de um sugerem estabilidade do número de novos casos ao longo dos próximos dias. Maiores informações
+      podem ser encontradas no link supracitado. Os dados referentes ao número de casos em cada estado são extraídos de
+      <a href="https://covid.saude.gov.br" target="_blank">https://covid.saude.gov.br</a>.
+    </p>
+
+    <p class="w3-text-grey"><span class="w3-text-black">Nota 1:</span> no dia 23 de abril, o site
+      <a href="https://rt.live" target="_blank">https://rt.live</a> alterou sua metodologia. Foi incorporado ao modelo, entre outras coisas, o atraso
+      variável entre surgimento dos sintomas e os respectivos resultados positivos nos testes. Devido a estas mudanças, o modelo se torna mais robusto
+      a grandes variações nos dados de testes. Isso implica uma estimativa de R<sub>t</sub> menos variável do que no modelo pregresso. Este site
+      aderiu à nova metodologia no dia 16 de maio. Por essa razão, os gráficos apresentarão doravante uma evolução mais suave do parâmetro R<sub>t</sub>.
+    </p>
+
+    <p class="w3-text-grey"><span class="w3-text-black">Nota 2:</span> a partir do dia 22 de maio, encontram-se disponíveis dados 
+      para os municípios. A estimativa para as cidades de um determinado estado pode ser acessada através da bandeira correspondente 
+      localizada ao lado do gráfico do respectivo estado.
+    </p>
+    
+    <p id="last_update"></p>
+
+    <figure class="highcharts-figure">
+      <div id="container"></div>
+    </figure>
+
+    <div id='chart-BR' class='itemBR'></div>
+    <p>&nbsp;</p>
+
+    <div id="estados" class="items">
+      <div id='chart-AC' class='item'></div>
+      <div id='chart-AL' class='item'></div>
+      <div id='chart-AM' class='item'></div>
+      <div id='chart-AP' class='item'></div>
+      <div id='chart-BA' class='item'></div>
+      <div id='chart-CE' class='item'></div>
+      <div id='chart-DF' class='item'></div>
+      <div id='chart-ES' class='item'></div>
+      <div id='chart-GO' class='item'></div>
+      <div id='chart-MA' class='item'></div>
+      <div id='chart-MG' class='item'></div>
+      <div id='chart-MS' class='item'></div>
+      <div id='chart-MT' class='item'></div>
+      <div id='chart-PA' class='item'></div>
+      <div id='chart-PB' class='item'></div>
+      <div id='chart-PE' class='item'></div>
+      <div id='chart-PI' class='item'></div>
+      <div id='chart-PR' class='item'></div>
+      <div id='chart-RJ' class='item'></div>
+      <div id='chart-RN' class='item'></div>
+      <div id='chart-RO' class='item'></div>
+      <div id='chart-RR' class='item'></div>
+      <div id='chart-RS' class='item'></div>
+      <div id='chart-SC' class='item'></div>
+      <div id='chart-SE' class='item'></div>
+      <div id='chart-SP' class='item'></div>
+      <div id='chart-TO' class='item'></div>
+    </div>
+
+  <style>
+    .items {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-gap: 1rem;
+    }
+    
+    @media (min-width: 600px) {
+    .items { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 900px) {
+    .items { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  </style>
+  
+  <script>
+
+    var mainChart;
+    var last_update;
+    var model_update = '<span class="model_date">Metodologia atualizada em: 16/Maio/2020.</span>';
+    var months = [ "Jan", "Fev", "Mar", "Abr", "Maio", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez" ];
+    $.getJSON('http://rtbrazilapi.herokuapp.com/last_update', function(json) {
+      date = json.split("-");
+      var num = Number(date[1]);
+      last_update = '<span class="date">Dados atualizados em: ' + date[2] + '/' + months[num - 1] + '/' + date[0] + '.</span>';
+      //last_update = '<span class="date">Última atualização: ' + date[2] + '/' + date[1] + '/' + date[0] + '.</span>';
+
+      document.getElementById("last_update").innerHTML = last_update + ' ' + model_update;
+    });
+    
+    Highcharts.getJSON(
+        'https://rtbrazilapi.herokuapp.com/last_rt',
+    function (data) {
+      
+      var last_rt_data = [];
+      for (var j = 0; j < data[0].length; j++) 
+         last_rt_data.push({'categoria': data[0][j], 'rt': data[1][j], 'error' : data[2][j] });
+
+      last_rt_data.sort(function(a, b) {
+               return ((a.rt < b.rt) ? -1 : ((a.rt == b.rt) ? 0 : 1));
+      });
+      
+      var categoria = [];
+      var rt = [];
+      var error = [];
+      
+      for (var j = 0; j < data[0].length; j++) {
+        if (last_rt_data[j].categoria == 'BR'){
+          categoria.push( 'Brasil' );
+        } else {
+          categoria.push( last_rt_data[j].categoria );
+        }
+        rt.push( last_rt_data[j].rt );
+        error.push( last_rt_data[j].error );
+      }
+      
+      
+      mainChart = Highcharts.chart('container', {
+      chart: {
+        type: 'column'
+      },
+      title: {
+        style: {
+          fontSize: "15px"
+        },
+        useHTML: true,
+        align: 'center',
+        y: 22,
+        text: 'R<sub>t</sub> Brasil'
+      },
+      navigation: {
+        buttonOptions: {
+          enabled: true
+        }
+      },
+      xAxis: {
+        useHTML: true,
+        categories: categoria
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          useHTML: true,
+          text: 'R<sub>t</sub>'
+        }
+      },
+      exporting: {
+        buttons: {
+            contextButton: {
+                y: 5,
+                menuItems: [
+                    'viewFullscreen',
+                    'downloadPNG'
+                  ]
+              }
+          }
+      },
+      legend: {
+        enabled: false
+      },
+      tooltip: {
+        useHTML: true,
+        valueDecimals: 2
+      },
+      series: [{
+        useHTML: true,
+        name: 'R<sub>t</sub>',
+        data: rt,
+        zones: [{
+                    value: 0.999,
+                    color: 'rgba(0, 225, 0, 0.60)',
+                }, {
+                    value: 1.1,
+                    color: 'rgba(238, 238, 0, 0.60)',
+                }, {
+                    color: 'rgba(255, 0, 0, 0.60)',
+                }]
+    
+      }, {
+            name: 'Erro',
+            type: 'errorbar',
+            data: error,
+            lineWidth: 1.3
+        }]
+    });
+    });
+    
+function addChart( estado ) {
+    return function(data) {
+        Highcharts.chart("chart-" + estado, {
+                      title: {
+                        style: {
+                          fontSize: "15px"
+                        },
+                        align: 'center',
+                        x: 22,
+                        y: 19,
+                        text: (function() {
+                          if (estado == 'BR'){
+                            return 'Brasil';
+                          } else {
+                            return estado;
+                          }
+                          })()
+                      },
+
+                      xAxis: {
+                        type: 'datetime',
+                        dateTimeLabelFormats: {
+                          day: '%e/%b',
+                          week: '%e/%b',
+                          month: '%e/%b'
+                        }
+                      },
+
+                      lang: {
+                        tooltipMsg: tooltipsMap[estado]
+                      },
+
+                      exporting: {
+                        buttons: {
+                            contextButton: {
+                                menuItems: [
+                                    'viewFullscreen',
+                                    'downloadPNG'
+                                  ]
+                              },
+                            customContextButton: {
+                                _titleKey: 'tooltipMsg',
+                                onclick: function() {
+                                  document.getElementById(estado).click();
+                                },
+                                align: 'left',
+                                x: 45,
+                                symbol: flagsMap[estado],
+                                symbolX: 22,
+                                symbolY: 22,
+                                symbolSize: 18
+                              }
+                          }
+                      },
+
+                      navigation: {
+                        buttonOptions: {
+                          enabled: true
+                        }
+                      },
+
+                      yAxis: {
+                        title: {
+                          useHTML: true,
+                          text: 'R<sub>t</sub>'
+                        },
+                        min: mainChart.yAxis[0].min,
+                        max: mainChart.yAxis[0].max,
+                        startOnTick: true,
+                        endOnTick: false,
+                        tickInterval: mainChart.yAxis[0].tickInterval,
+                        breaks: [{
+                          from: mainChart.yAxis[0].min,
+                          to: mainChart.yAxis[0].max,
+                          breakSize: mainChart.yAxis[0].tickInterval
+                        }],
+                        plotLines: [{
+                          color: 'red',
+                          dashStyle: 'shortdash',
+                          value: 1,
+                          width: 2
+                        }]
+                      },
+
+                      legend: {
+                        enabled: false
+                      },
+      
+                      tooltip: {
+                        useHTML: true,
+                        dateTimeLabelFormats: {
+                            day: '%A, %d/%b/%Y',
+                            week: '%A, %d/%b/%Y',
+                            month: '%A, %d/%b/%Y'
+                        },
+                        valueDecimals: 2
+                      },
+
+                      series: [{
+                        useHTML: true,
+                        name: 'R<sub>t</sub>',
+                        data: data[0],
+                        zIndex: 1,
+                        marker: {
+                          enabled: false
+                        }
+                      }, {
+                        name: 'Erro',
+                        data: data[1],
+                        type: 'arearange',
+                        lineWidth: 0,
+                        linkedTo: ':previous',
+                        color: Highcharts.getOptions().colors[0],
+                        fillOpacity: 0.3,
+                        zIndex: 0,
+                        marker: {
+                          enabled: false
+                        }
+                      }]
+         });
+    }
+    
+}    
+    
+    $.getJSON( "https://rtbrazilapi.herokuapp.com/list_states", function( estados ) {
+          for (var i = 0; i < estados.length; i++) {
+               $.getJSON( "https://rtbrazilapi.herokuapp.com/rt_ts/" + estados[i], addChart( estados[i] ));
+          }
+          
+     });
+    
+    
+    
+    </script> 
+
+    <p class="w3-text-black"><b><u>Observações importantes</u></b></p>
+
+    <p class="w3-text-grey">Cumpre ter precaução com os gráficos acima, já que a subnotificação de casos no país, de magnitude
+      elevada e com características variantes no tempo, pode impactar a qualidade das estimativas. Devido ao atraso entre a
+      contaminação por COVID-19 e a respectiva confirmação, as estimativas de R<sub>t</sub> apresentam um atraso com relação à realidade.
+      Também importa ter em mente algumas críticas relevantes ao modelo, tais como as vistas <a href="https://marginalrevolution.com/marginalrevolution/2020/04/our-best-people-are-working-on-this-problem.html" target="_blank">aqui</a>.</p>
+  </div>
+</div>
+
+<!-- Second Grid -->
+<div class="w3-row-padding w3-light-grey w3-padding-16 w3-container">
+  <div class="w3-content">
+    <h1><i class="fa fa-external-link w3-padding-16 w3-text-black w3-margin-right"></i> Links úteis</h1>
+
+    <p class="w3-text-grey">
+      <ul class="w3-text-grey">
+          <li>Ministério da Saúde Brasil: <a href="https://saude.gov.br" target="_blank">https://saude.gov.br</a></li>
+          <li>Painel Coronavírus Brasil: <a href="https://covid.saude.gov.br" target="_blank">https://covid.saude.gov.br</a></li>
+          <li>Mapa Interativo Corona Vírus Mundial Universidade Johns Hopkins: <a href="https://coronavirus.jhu.edu/map.html" target="_blank">https://coronavirus.jhu.edu/map.html</a></li>
+        </ul>
+    </p>
+
+    <p class="w3-text-black"><b><u>Sugestão de material de consulta</u></b></p>
+
+    <p class="w3-text-grey">
+      Luís Tarrataca, Claudia Mazza Dias, Diego Barreto Haddad e Edilson F. Arruda.
+      Flattening the curves: on-off lock-down strategies for COVID-19 with an application to Brazil.
+      Submetido para publicação. Abril, 2020. Link: <a href="https://tinyurl.com/yat7k45z" target="_blank">https://tinyurl.com/yat7k45z</a>.
+    </p>
+
+    <p class="w3-text-black"><b><u>Vídeos didáticos sobre Coronavírus</u></b></p>
+
+    <p class="w3-text-grey">
+      <ul class="w3-text-grey">
+          <li>Por que ficar em isolamento: <a href="https://www.youtube.com/watch?v=AljRkTjcTp0&t=1s" target="_blank">https://www.youtube.com/watch?v=AljRkTjcTp0&t=1s</a></li>
+          <li>Até quando deve ir o isolamento: <a href="https://www.youtube.com/watch?v=QqkgMDrM1KQ&t=3s" target="_blank">https://www.youtube.com/watch?v=QqkgMDrM1KQ&t=3s</a></li>
+        </ul>
+    </p>
+  </div>
+</div>
+
+<!-- Third Grid -->
+<div class="w3-row-padding w3-padding-16 w3-container">
+  <div class="w3-content">
+    <h1><i class="fa fa-address-card w3-padding-16 w3-text-black w3-margin-right"></i> Sobre</h1>
+
+    <p class="w3-text-grey">Essa iniciativa tem como objetivo informar a população e os tomadores de decisão no Brasil acerca dos
+        últimos dados de disseminação do Corona Vírus na comunidade brasileira. Esperamos poder contribuir para uma tomada de
+        decisões apropriada, bem como conscientizar da população acerca da importância dos cuidados que devem ser tomados em
+        uma situação tão delicada quanto a atual.</p>
+    <p class="w3-text-grey">Os responsáveis pelo site (abaixo elencados) são todos docentes do <a href="http://www.cefet-rj.br/index.php/petropolis" target="_blank">CEFET/RJ <i>campus</i> Petrópolis</a>,
+        atuantes no curso de <a href="http://e-computacao.com.br/" target="_blank">Bacharelado em Engenharia de Computação</a>.
+        Dentre estes, alguns participam dos Programas de Pós-Graduação em Engenharia Elétrica (<a href="http://dippg.cefet-rj.br/ppeel/" target="_blank">PPEEL</a>), Instrumentação e Óptica Aplicada
+        (<a href="http://dippg.cefet-rj.br/ppgio/" target="_blank">PPGIO</a>) e em Ciência da Computação (<a href="https://eic.cefet-rj.br/ppcic/" target="_blank">PPCIC</a>).</p>
+
+    <p class="w3-text-black"><b>Diego Barreto Haddad</b>&nbsp;
+      <a href="https://eic.cefet-rj.br/~dhaddad" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/8728806963872778" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.researchgate.net/profile/Diego_Haddad" target="_blank" style="text-decoration:none" class="ai ai-researchgate-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://scholar.google.com.br/citations?user=by_v_7gAAAAJ&hl=pt-PT" target="_blank" style="text-decoration:none" class="ai ai-google-scholar-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://orcid.org/0000-0002-7634-5481" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.linkedin.com/in/diego-haddad-87531923" target="_blank" style="text-decoration:none" class="fa fa-linkedin-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.youtube.com/watch?v=SsPd5kO6yNM" target="_blank" style="text-decoration:none" class="fa fa-youtube-square w3-hover-opacity w3-text-grey"><!--Vídeo sobre principais áreas de pesquisa--></a>
+    </p>
+
+    <p class="w3-text-black"><b>Douglas de Oliveira Cardoso</b>&nbsp;
+      <a href="https://github.com/docardoso" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/9438219886705967" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.researchgate.net/profile/Douglas_Cardoso" target="_blank" style="text-decoration:none" class="ai ai-researchgate-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://scholar.google.com.br/citations?user=i88U02AAAAAJ" target="_blank" style="text-decoration:none" class="ai ai-google-scholar-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://orcid.org/0000-0002-1932-334X" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://docardoso.github.io/" target="_blank" style="text-decoration:none" class="fa fa-github-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+
+    <p class="w3-text-black"><b>Jurair Rosa de Paula Junior</b>&nbsp;
+      <a href="https://sites.google.com/site/jurairr/home" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/9751076606861802" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.researchgate.net/profile/Jurair_Rosa2" target="_blank" style="text-decoration:none" class="ai ai-researchgate-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://scholar.google.com/citations?user=qRdSJZcAAAAJ&hl=en" target="_blank" style="text-decoration:none" class="ai ai-google-scholar-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://orcid.org/0000-0002-0035-2247" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.linkedin.com/in/jurair-rosa-de-paula-junior-9b38541b" target="_blank" style="text-decoration:none" class="fa fa-linkedin-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+
+    <p class="w3-text-black"><b>Laura Silva de Assis</b>&nbsp;
+      <a href="http://sites.google.com/site/lauraassis/" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/5422223061528938" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.researchgate.net/profile/Laura_Assis" target="_blank" style="text-decoration:none" class="ai ai-researchgate-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://scholar.google.com.br/citations?hl=en&user=IA70H1UAAAAJ" target="_blank" style="text-decoration:none" class="ai ai-google-scholar-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://orcid.org/0000-0003-3081-9722" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.linkedin.com/in/laura-assis-42499164" target="_blank" style="text-decoration:none" class="fa fa-linkedin-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+
+    <p class="w3-text-black"><b>Luis Carlos dos Santos Coutinho Retondaro</b>&nbsp;
+      <a href="http://www.retondaro.pro.br" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/0568892789918244" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+
+    <p class="w3-text-black"><b>Luís Domingues Tomé Jardim Tarrataca</b>&nbsp;
+      <a href="http://web.ist.utl.pt/luis.tarrataca/index.html" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/3170909452575755" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.researchgate.net/profile/Luis_Tarrataca" target="_blank" style="text-decoration:none" class="ai ai-researchgate-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://scholar.google.com/citations?user=9N8mKvwAAAAJ&hl=en" target="_blank" style="text-decoration:none" class="ai ai-google-scholar-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://orcid.org/0000-0001-9359-5143" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.linkedin.com/in/luistarrataca/" target="_blank" style="text-decoration:none" class="fa fa-linkedin-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+
+    <p class="w3-text-black"><b>Pedro Carlos da Silva Lara</b>&nbsp;
+      <a href="http://www.lncc.br/~pcslara" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/9711646725506261" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://orcid.org/0000-0001-8722-7723" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+  </div>
+</div>
+
+<div class="w3-container w3-black w3-center w3-opacity w3-padding-8">
+  <h1 class="w3-margin w3-xsmall">
+    <a href="https://pt-br.facebook.com/cefetcampuspetropolis" target="_blank" style="text-decoration:none" class="fa fa-facebook-official w3-hover-opacity border-bottom: 1px solid #000"></a>
+    <a href="https://www.instagram.com/cefetcampuspetropolis" target="_blank" style="text-decoration:none" class="fa fa-instagram w3-hover-opacity border-bottom: 1px solid #000"></a>
+    <a href="https://twitter.com/cefet_rj?lang=en" target="_blank" style="text-decoration:none" class="fa fa-twitter-square w3-hover-opacity"></a>
+    <a href="https://www.linkedin.com/company/cefetrj/?originalSubdomain=br" target="_blank" style="text-decoration:none" class="fa fa-linkedin-square w3-hover-opacity"></a>
+  </h1>
+  <!--
+  <h1>
+    Ícones feitos por <a href="https://www.flaticon.com/br/autores/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/br/" title="Flaticon">www.flaticon.com</a>
+  </h1>
+  -->
+</div>
+
+</body>
+</html>

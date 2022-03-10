@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WD59BZN');</script>
+<!-- End Google Tag Manager -->
+
+<title>Monitor COVID-19</title>
+<meta charset="UTF-8">
+<meta name="description" content="Monitoriamento da COVID-19 baseado na metodologia apresentada no site https://rt.live">
+<meta name="keywords" content="Coronavirus,Corona-19,Corona,COVID,COVID-19,RT live,Monitoramento,Monitor,Pandemia,Epidemia">
+<meta name="author" content="Diego Barreto Haddad,Douglas de Oliveira Cardoso,Jurair Rosa de Paula Junior,Laura Silva de Assis,Luis Carlos dos Santos Coutinho Retondaro,Luís Domingues Tomé Jardim Tarrataca,Pedro Carlos da Silva Lara">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta property="og:title" content="Monitor da COVID-19"/>
+<meta property="og:image" content="../shareIcon.png"/>
+<meta property="og:description" content="Você gostaria de saber como é que o COVID19 está evoluindo no Brasil? Como se está espalhando no seu estado? Gostaria de perceber se a tendência de contaminação está crescendo ou diminuindo? Consulte aqui."/>
+<meta property="og:url" content="http://monitorcovid.com.br/estado/se.html"/>
+
+<link rel="icon" href="../icon.png" type="image/png">
+<link rel="stylesheet" href="../template/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel=”stylesheet” href=”https://raw.githubusercontent.com/jpswalsh/academicons/master/css/academicons.css”>
+<link rel="stylesheet" href="https://cdn.rawgit.com/jpswalsh/academicons/master/css/academicons.min.css">
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/boost.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<script>
+  Highcharts.Series.prototype.directTouch = true;
+  
+  var highchartsOptions = Highcharts.setOptions({
+    lang: {
+      loading: 'Aguarde...',
+      months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+      weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+      shortMonths: ['Jan', 'Feb', 'Mar', 'Abr', 'Maio', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+      exportButtonTitle: "Exportar",
+      printButtonTitle: "Imprimir",
+      rangeSelectorFrom: "De",
+      rangeSelectorTo: "Até",
+      rangeSelectorZoom: "Periodo",
+      downloadPNG: 'Baixar imagem PNG',
+      decimalPoint: ',',
+      thousandsSep: '.',
+      viewFullscreen: 'Ver em tela cheia',
+      exitFullscreen: 'Sair de tela cheia'
+    }
+  });
+
+  var categoria_rt = [];
+  var last_rt = [];
+  var error = [];
+
+  var categoria_cases = [];
+  var last_cases = [];
+
+  var categoria_deaths = [];
+  var last_deaths = [];
+
+  var charts = [];
+  var chartsIdx = 0;
+
+  var viewOption = "rt";
+</script>
+
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
+.w3-bar,h1,button {font-family: "Montserrat", sans-serif}
+.fa-anchor,.fa-coffee {font-size:200px}
+</style>
+
+<style>
+  #scrollTopButton {
+    background-color: Transparent;
+    background-repeat: no-repeat;
+    cursor:pointer;
+    overflow: hidden;
+    display: none; /* Hidden by default */
+    position: fixed; /* Fixed/sticky position */
+    bottom: 20px; /* Place the button at the bottom of the page */
+    right: 20px; /* Place the button 30px from the right */
+    margin: auto;
+    z-index: 99; /* Make sure it does not overlap */
+    border: none; /* Remove borders */
+    outline: none; /* Remove outline */
+    cursor: pointer; /* Add a mouse pointer on hover */
+    border-radius: 99px; /* Rounded corners */
+    text-shadow: 0 0 2px black;
+  }
+
+  .switch_3_ways{
+    margin:auto 2em;
+    font-size:0.9em;
+    height:2em;
+    line-height:2em;
+    border-radius:0.3em;
+    color: #333333;
+    background: #e6e6e6;
+    position:relative;
+    display:block;
+    float:right;
+    white-space:nowrap;
+  }
+  .switch.rt,
+  .switch.cases,
+  .switch.deaths{
+    cursor:pointer;
+    position:relative;
+    display:block;
+    float:left;
+    padding: 0 0.5em;
+    -webkit-transition: 300ms ease-out;
+    -moz-transition: 300ms ease-out;
+    transition: 300ms ease-out;
+  }
+  .switch.active{
+    color:white;
+    border-radius:0.3em;
+    -moz-box-shadow: 0px 0px 7px 1px #656565;
+    -webkit-box-shadow: 0px 0px 7px 1px #656565;
+    -o-box-shadow: 0px 0px 7px 1px #656565;
+    box-shadow: 0px 0px 7px 1px #656565;
+  }
+  .switch.rt.active{
+    background-color:#777777;
+  }
+  .switch.cases.active{
+    background-color:#418d92;
+  }
+  .switch.deaths.active{
+    background-color:#ff6666;/* #2f7ed8; #418d92; #4d7ea9; */
+  }
+  
+  .highcharts-figure, .highcharts-data-table table {
+    min-width: 310px;
+    max-width: 100%;
+    margin: 2em auto;
+  }
+
+  .flag {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+  }
+  
+  #chart-state {
+    height: 400px;
+    width: 100%;
+  }
+
+  .model_date {
+    font-size: 0.9em;
+    border: 2px;
+    border-radius: 10px;
+    padding: 5px;
+    color: #333333;
+    background-color: #e6e6e6;
+    white-space: nowrap;
+    line-height: 2.5;
+  }
+
+  .date {
+    font-size: 0.9em;
+    border: 2px;
+    border-radius: 10px;
+    padding: 5px;
+    color: #186F4A;
+    background-color: #C5F2DF;
+    white-space: nowrap;
+    line-height: 2.5;
+  }
+  
+  .highcharts-data-table table {
+    font-family: Verdana, sans-serif;
+    border-collapse: collapse;
+    border: 1px solid #EBEBEB;
+    margin: 10px auto;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+  }
+  .highcharts-data-table caption {
+    padding: 1em 0;
+    font-size: 1.2em;
+    color: #555;
+  }
+  .highcharts-data-table th {
+    font-weight: 600;
+    padding: 0.5em;
+  }
+  .highcharts-data-table td, .highcharts-data-table th, .highcharts-data-table caption {
+    padding: 0.5em;
+  }
+  .highcharts-data-table thead tr, .highcharts-data-table tr:nth-child(even) {
+    background: #f8f8f8;
+  }
+  .highcharts-data-table tr:hover {
+    background: #f1f7ff;
+  }
+  .itemEstado {	
+    flex-basis: calc(33.333% - 10px);	
+    margin: 0 0px;	
+    min-width: calc(100% * (1/4) - 1px);	
+    height: 240px;	
+    width: 100%;	
+  }	
+  .item {	
+    flex-basis: calc(33.333% - 10px);	
+    margin: 0 0px;	
+    min-width: calc(100% * (1/4) - 1px);	
+    height: 240px;	
+  }	
+  .item:nth-child(3n+2),	
+  .item:nth-child(3n+3) {           /*  every 3rd element, start at 2nd and 3rd  */	
+    margin-left:15px;               /*  10px per item, divide with 2 gaps  */	
+  }	
+  .items{	
+    flex: 1;	
+    display: flex;	
+    flex-wrap: wrap;	
+    align-content: flex-start;	
+  }	
+  .items * {	
+    box-sizing: border-box;	
+  }	
+  .center {	
+    display: block;	
+    margin-left: auto;	
+    margin-right: auto;	
+    width: 33.3%;
+    padding: 5px;	
+    min-width: 400px;	
+  }
+  </style>
+</head>
+
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WD59BZN"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- Scroll to top -->
+<i onclick="topFunction()" id="scrollTopButton" class="fa fa-chevron-up w3-hover-opacity w3-text-black" style='font-size:22px;text-decoration:none'></i>
+
+<script>
+  //Get the button:
+  mybutton = document.getElementById("scrollTopButton");
+
+  // When the user scrolls down 20px from the top of the document, show the button
+  window.onscroll = function() {scrollFunction()};
+
+  function scrollFunction() {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+      mybutton.style.display = "block";
+    } else {
+      mybutton.style.display = "none";
+    }
+  }
+
+  // When the user clicks on the button, scroll to the top of the document
+  function topFunction() {
+    window.scrollTo({top: 0, behavior: "smooth"});
+  }
+</script>
+<!-- End scroll to top -->
+
+<!-- Header -->
+<header class="w3-container w3-black w3-center">
+  <h1 class="w3-xxlarge"><b>Monitor COVID-19</b></h1>
+</header>
+
+<!-- First Grid -->
+<div class="w3-row-padding w3-padding-8 w3-container">
+  <div class="w3-auto">
+    <h1 class="w3-xlarge"><img src="../flags/SE.png" class="flag"><i class="w3-padding-8 w3-text-black w3-margin-right"></i> Sergipe</h1>
+
+    <p class="w3-text-grey">Baseados rigorosamente na metodologia apresentada no site <a href="https://rt.live" target="_blank">https://rt.live</a>, 
+      exibimos aqui os valores atualizados de estimativas do parâmetro R<sub>t</sub>, o qual afere a rapidez com que o COVID-19 está 
+      se disseminando. Grosso modo, este parâmetro reflete quantas pessoas, em média, são contaminadas por cada indivíduo que adquire 
+      o COVID-19, contemplando o impacto de restrições à mobilidade social. Valores de R<sub>t</sub> inferiores à uma unidade 
+      (R<sub>t</sub> < 1), refletem uma tendência de queda de novos casos. Valores superiores a um indicam uma tendência de aumento 
+      do número de novos casos na respectiva unidade federativa. Valores próximos de um sugerem estabilidade do número de novos casos 
+      ao longo dos próximos dias.</p>
+    <p class="w3-text-black">Apresentamos tal estimativa para as 12 cidades com maior número de casos para 
+      cada unidade federativa do Brasil, bem como o número acumulado de casos e o de mortes.<span class="w3-text-grey"> Os dados são extraídos 
+      de <a href="https://covid.saude.gov.br" target="_blank">https://covid.saude.gov.br</a>.</span></p>
+    
+    <p id="last_update"></p>
+
+    <div class="center">
+      <div class="switch_3_ways">
+        <div id="switch_rt" class="switch rt active" onclick="change_view('rt')" style="text-align:center">Parâmetro R<sub>t</sub></div>
+        <div id="switch_cases" class="switch cases" onclick="change_view('cases')" style="text-align:center">Número de casos</div>
+        <div id="switch_deaths" class="switch deaths" onclick="change_view('deaths')" style="text-align:center">Número de óbitos</div>
+      </div>
+    </div>
+
+    <script>
+      function change_view(option) {
+
+        if (option == viewOption) {
+          return;
+        }
+
+        var switch_rt = document.getElementById("switch_rt");
+        var switch_cases = document.getElementById("switch_cases");
+        var switch_deaths = document.getElementById("switch_deaths");
+        if (option == "rt") {
+          for (var i=0; i<charts.length; ++i) {
+            for (var j=3; j<7; ++j) {
+              if (charts[i].series[j].visible) {
+                charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+              }
+            }
+            for (var j=0; j<3; ++j) {
+              if (!charts[i].series[j].visible) {
+                charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+              }
+            }
+            charts[i].yAxis[0].update({title: {useHTML: true, text: 'R<sub>t</sub>'}}, false);
+            charts[i].yAxis[0].addPlotLine({id: 'rt1', color: 'red', dashStyle: 'shortdash', value: 1, width: 2});
+            charts[i].redraw();
+          }
+
+          switch_cases.className +=  "switch cases";
+          switch_deaths.className +=  "switch deaths";
+          setTimeout(function(){
+            switch_rt.className +=  "switch rt active";
+          },500);
+        } else if (option == "cases") {
+          for (var i=0; i<charts.length; ++i) {
+            for (var j=0; j<7; ++j) {
+              if (j>2 && j<5) {
+                if (!charts[i].series[j].visible) {
+                  charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+                }
+              } else {
+                if (charts[i].series[j].visible) {
+                  charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+                }
+              }
+            }
+            charts[i].yAxis[0].update({title: {useHTML: true, text: 'Casos'}}, false);
+            charts[i].yAxis[0].removePlotLine('rt1');
+            charts[i].redraw();
+          }
+
+          switch_rt.className +=  "switch rt";
+          switch_deaths.className +=  "switch deaths";
+          setTimeout(function(){
+            switch_cases.className +=  "switch cases active";
+          },500);
+        } else {
+          for (var i=0; i<charts.length; ++i) {
+            for (var j=0; j<5; ++j) {
+              if (charts[i].series[j].visible) {
+                charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+              }
+            }
+            for (var j=5; j<7; ++j) {
+              if (!charts[i].series[j].visible) {
+                charts[i].series[j].setVisible(!charts[i].series[j].visible, false);
+              }
+            }
+            charts[i].yAxis[0].update({title: {useHTML: true, text: 'Óbitos'}}, false);
+            charts[i].yAxis[0].removePlotLine('rt1');
+            charts[i].redraw();
+          }
+
+          switch_rt.className +=  "switch rt";
+          switch_cases.className +=  "switch cases";
+          setTimeout(function(){
+            switch_deaths.className +=  "switch deaths active";
+          },500);
+        }
+
+        viewOption = option;
+      }
+    </script>
+
+    <p>&nbsp;</p>
+    <div id='chart-0' class='itemEstado'></div>
+    <p>&nbsp;</p>
+
+    <div id="cidades" class="items">
+      <div id='chart-1' class='item'></div>
+      <div id='chart-2' class='item'></div>
+      <div id='chart-3' class='item'></div>
+      <div id='chart-4' class='item'></div>
+      <div id='chart-5' class='item'></div>
+      <div id='chart-6' class='item'></div>
+      <div id='chart-7' class='item'></div>
+      <div id='chart-8' class='item'></div>
+      <div id='chart-9' class='item'></div>
+      <div id='chart-10' class='item'></div>
+      <div id='chart-11' class='item'></div>
+      <div id='chart-12' class='item'></div>
+    </div>
+
+    <style>
+      .items {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-gap: 1rem;
+      }
+      
+      @media (min-width: 600px) {
+      .items { grid-template-columns: repeat(2, 1fr); }
+      }
+
+      @media (min-width: 900px) {
+        .items { grid-template-columns: repeat(3, 1fr); }
+      }
+    </style>
+  
+    <script>
+      var last_update;
+      var model_update = '<span class="model_date">Metodologia atualizada em: 16/Maio/2020.</span>';
+      var months = [ "Jan", "Fev", "Mar", "Abr", "Maio", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez" ];
+      $.getJSON('http://rtbrazilapi.herokuapp.com/last_update', function(json) {
+        date = json.split("-");
+        var num = Number(date[1]);
+        last_update = '<span class="date">Dados atualizados em: ' + date[2] + '/' + months[num - 1] + '/' + date[0] + '.</span>';
+
+        document.getElementById("last_update").innerHTML = last_update + ' ' + model_update;
+      });
+
+      function addChart( cidade, i, url1, url2 ) {
+      $.getJSON(url1, function (rt) {
+        $.getJSON(url2, function (cases_deaths) {
+          var days = 7;
+          var prediction_rt     = [];
+          var prediction_cases  = [];
+          var prediction_deaths = [];
+          for (var j = days; j > 0; j--) {
+            prediction_rt[j]     = rt[0].pop();
+            prediction_cases[j]  = cases_deaths[0].pop();
+            prediction_deaths[j] = cases_deaths[1].pop();
+          }
+          var length_rt     = rt[0].length - 1;
+          var length_cases  = cases_deaths[0].length - 1;
+          var length_deaths = cases_deaths[1].length - 1;
+
+          prediction_rt[0]     = rt[0][length_rt];
+          prediction_cases[0]  = cases_deaths[0][length_cases];
+          prediction_deaths[0] = cases_deaths[1][length_deaths];
+
+          charts[chartsIdx++] = Highcharts.chart("chart-" + i, {
+                        title: {
+                          style: {
+                            fontSize: "15px"
+                          },
+                          align: 'center',
+                          x: 22,
+                          y: 19,
+                          text: (function() {
+                            if (cidade == 'SE'){
+                              return 'Estado';
+                            } else {
+                              return cidade;
+                            }
+                            })()
+                        },
+
+                        boost: {
+                          useGPUTranslations: true
+                        },
+
+                        xAxis: {
+                          type: 'datetime',
+                          dateTimeLabelFormats: {
+                            day: '%e/%b',
+                            week: '%e/%b',
+                            month: '%e/%b'
+                          }
+                        },
+
+                        exporting: {
+                          buttons: {
+                              contextButton: {
+                                  menuItems: [
+                                      'viewFullscreen',
+                                      'downloadPNG'
+                                    ]
+                                }
+                            }
+                        },
+
+                        navigation: {
+                          buttonOptions: {
+                            enabled: true
+                          }
+                        },
+
+                        yAxis: {
+                          title: {
+                            useHTML: true,
+                            text: 'R<sub>t</sub>'
+                          },
+                          min: 0,
+                          startOnTick: true,
+                          endOnTick: true,
+                          plotLines: [{
+                            id: 'rt1',
+                            color: 'red',
+                            dashStyle: 'shortdash',
+                            value: 1,
+                            width: 2
+                          }]
+                        },
+
+                        legend: {
+                          enabled: false
+                        },
+
+                        tooltip: {
+                          useHTML: true,
+                          crosshairs: true,
+                          shared: true,
+                          formatter() {
+                            if (this.x == prediction_rt[0][0] || this.x == prediction_cases[0][0] || this.x == prediction_deaths[0][0]) {
+                              var output1 = `<span style=font-size:10px>${ Highcharts.dateFormat('%A, %d/%b/%Y', new Date(this.x))}</span><br/>`
+                              this.points.forEach(point => {
+                                var y = Highcharts.numberFormat(point.point.y, 0)
+                                if (point.series.name.includes("R<sub>t</sub>", 0)) {
+                                  y = Highcharts.numberFormat(point.point.y, 2)
+                                }
+                                var low = Highcharts.numberFormat(point.point.low, 2)
+                                var high = Highcharts.numberFormat(point.point.high, 2)
+                                if (point.series.name == "Erro") {
+                                  output1 += `<span style="color:${point.color}">◆</span> ${point.series.name}: <b>${low}</b> - <b>${high}</b><br/>`
+                                } else {
+                                  if (point.series.name.includes("preliminar", 0)) {
+                                    return
+                                  } else {
+                                    output1 += `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${y}</b><br/>`
+                                  }
+                                }
+                              })
+                              return output1
+                            } else {
+                              var output2 = `<span style=font-size:10px>${ Highcharts.dateFormat('%A, %d/%b/%Y', new Date(this.x))}</span><br/>`
+                              this.points.forEach(point => {
+                                var y = Highcharts.numberFormat(point.point.y, 0)
+                                if (point.series.name.includes("R<sub>t</sub>", 0)) {
+                                  y = Highcharts.numberFormat(point.point.y, 2)
+                                }
+                                var low = Highcharts.numberFormat(point.point.low, 2)
+                                var high = Highcharts.numberFormat(point.point.high, 2)
+                                if (point.series.name == "Erro") {
+                                  output2 += `<span style="color:${point.color}">◆</span> ${point.series.name}: <b>${low}</b> - <b>${high}</b><br/>`
+                                } else {
+                                  output2 += `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${y}</b><br/>`
+                                }
+                              })
+                              return output2
+                            }
+                          }
+                        },
+
+                        series: [{
+                          useHTML: true,
+                          name: 'R<sub>t</sub>',
+                          data: rt[0],
+                          zIndex: 1,
+                          color: Highcharts.getOptions().colors[0],
+                          marker: {
+                            states:{
+                              hover: {
+                                enabled: false
+                              }
+                            },
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        } , {
+                          useHTML: true,
+                          name: 'R<sub>t</sub> preliminar',
+                          data: prediction_rt,
+                          dashStyle: 'dot',
+                          zIndex: 1,
+                          color: Highcharts.getOptions().colors[0],
+                          marker: {
+                            states:{
+                              hover: {
+                                enabled: false
+                              }
+                            },
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        } , {
+                          name: 'Erro',
+                          data: rt[1],
+                          type: 'arearange',
+                          lineWidth: 0,
+                          //linkedTo: ':previous',
+                          color: Highcharts.getOptions().colors[0],
+                          fillOpacity: 0.3,
+                          zIndex: 0,
+                          marker: {
+                            states:{
+                              hover: {
+                                enabled: false
+                              }
+                            },
+                            enabled: false,
+                            symbol: 'diamond',
+                            radius: 1.5
+                          }
+                        } , {
+                          useHTML: true,
+                          name: 'Casos',
+                          data: cases_deaths[0],
+                          zIndex: 1,
+                          color: '#418d92',
+                          visible: false,
+                          marker: {
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        } , {
+                          useHTML: true,
+                          name: 'Casos preliminares',
+                          data: prediction_cases,
+                          dashStyle: 'dot',
+                          zIndex: 1,
+                          color: '#418d92',
+                          visible: false,
+                          marker: {
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        } , {
+                          useHTML: true,
+                          name: 'Óbitos',
+                          data: cases_deaths[1],
+                          zIndex: 1,
+                          color: '#ff6666',
+                          visible: false,
+                          marker: {
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        } , {
+                          useHTML: true,
+                          name: 'Óbitos preliminares',
+                          data: prediction_deaths,
+                          dashStyle: 'dot',
+                          zIndex: 1,
+                          color: '#ff6666',
+                          visible: false,
+                          marker: {
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2
+                          }
+                        }]
+          });
+          });
+        });
+      }
+
+      $.getJSON( "https://rtbrazilapi.herokuapp.com/list_cities/SE", function( cidades ) {
+        var URL_rt = "https://rtbrazilapi.herokuapp.com/rt_ts/SE";
+        var URL_cases_deaths = "https://rtbrazilapi.herokuapp.com/cases_deaths_ts/SE";
+        addChart( "SE", 0, URL_rt, URL_cases_deaths );
+        for (var i = 0; i < cidades.length; i++) {
+          URL_rt = "https://rtbrazilapi.herokuapp.com/rt_ts/SE/" + cidades[i];
+          URL_cases_deaths = "https://rtbrazilapi.herokuapp.com/cases_deaths_ts/SE/" + cidades[i];
+
+          addChart( cidades[i], (i + 1), URL_rt, URL_cases_deaths );
+        }
+      });
+    </script>
+
+    <p class="w3-text-black"><b><u>Observações importantes</u></b></p>
+
+    <p class="w3-text-grey">Cumpre ter precaução com os gráficos acima, já que a subnotificação de casos no país, de magnitude
+      elevada e com características variantes no tempo, pode impactar a qualidade das estimativas. Devido ao atraso entre a
+      contaminação por COVID-19 e a respectiva confirmação, as estimativas de R<sub>t</sub> apresentam um atraso com relação à realidade.
+      Também importa ter em mente algumas críticas relevantes ao modelo, tais como as vistas <a href="https://marginalrevolution.com/marginalrevolution/2020/04/our-best-people-are-working-on-this-problem.html" target="_blank">aqui</a>.</p>
+  </div>
+</div>
+
+<!-- Second Grid -->
+<div class="w3-row-padding w3-light-grey w3-padding-8 w3-container">
+  <div class="w3-auto">
+    <h1 class="w3-xlarge"><i class="fa fa-external-link w3-padding-8 w3-text-black w3-margin-right"></i> Links úteis</h1>
+
+    <p class="w3-text-grey">
+      <ul class="w3-text-grey">
+          <li>Ministério da Saúde Brasil: <a href="https://saude.gov.br" target="_blank">https://saude.gov.br</a></li>
+          <li>Painel Coronavírus Brasil: <a href="https://covid.saude.gov.br" target="_blank">https://covid.saude.gov.br</a></li>
+          <li>Mapa Interativo Corona Vírus Mundial Universidade Johns Hopkins: <a href="https://coronavirus.jhu.edu/map.html" target="_blank">https://coronavirus.jhu.edu/map.html</a></li>
+        </ul>
+    </p>
+
+    <p class="w3-text-black"><b><u>Sugestão de material de consulta</u></b></p>
+
+    <p class="w3-text-grey">
+      Luís Tarrataca, Claudia Mazza Dias, Diego Barreto Haddad e Edilson F. Arruda.
+      Flattening the curves: on-off lock-down strategies for COVID-19 with an application to Brazil.
+      Submetido para publicação. Abril, 2020. Link: <a href="https://tinyurl.com/yat7k45z" target="_blank">https://tinyurl.com/yat7k45z</a>.
+    </p>
+
+    <p class="w3-text-black"><b><u>Vídeos didáticos sobre Coronavírus</u></b></p>
+
+    <p class="w3-text-grey">
+      <ul class="w3-text-grey">
+          <li>Por que ficar em isolamento: <a href="https://www.youtube.com/watch?v=AljRkTjcTp0&t=1s" target="_blank">https://www.youtube.com/watch?v=AljRkTjcTp0&t=1s</a></li>
+          <li>Até quando deve ir o isolamento: <a href="https://www.youtube.com/watch?v=QqkgMDrM1KQ&t=3s" target="_blank">https://www.youtube.com/watch?v=QqkgMDrM1KQ&t=3s</a></li>
+        </ul>
+    </p>
+  </div>
+</div>
+
+<!-- Third Grid -->
+<div class="w3-row-padding w3-padding-8 w3-container">
+  <div class="w3-auto">
+    <h1 class="w3-xlarge"><i class="fa fa-address-card w3-padding-8 w3-text-black w3-margin-right"></i> Sobre</h1>
+
+    <p class="w3-text-grey">Essa iniciativa tem como objetivo informar a população e os tomadores de decisão no Brasil acerca dos
+        últimos dados de disseminação do Corona Vírus na comunidade brasileira. Esperamos poder contribuir para uma tomada de
+        decisões apropriada, bem como conscientizar da população acerca da importância dos cuidados que devem ser tomados em
+        uma situação tão delicada quanto a atual.</p>
+    <p class="w3-text-grey">Os responsáveis pelo site (abaixo elencados) são todos docentes do <a href="http://www.cefet-rj.br/index.php/petropolis" target="_blank">CEFET/RJ <i>campus</i> Petrópolis</a>,
+        atuantes no curso de <a href="http://e-computacao.com.br/" target="_blank">Bacharelado em Engenharia de Computação</a>.
+        Dentre estes, alguns participam dos Programas de Pós-Graduação em Engenharia Elétrica (<a href="http://dippg.cefet-rj.br/ppeel/" target="_blank">PPEEL</a>), Instrumentação e Óptica Aplicada
+        (<a href="http://dippg.cefet-rj.br/ppgio/" target="_blank">PPGIO</a>) e em Ciência da Computação (<a href="https://eic.cefet-rj.br/ppcic/" target="_blank">PPCIC</a>).</p>
+
+    <p class="w3-text-black"><b>Diego Barreto Haddad</b>&nbsp;
+      <a href="https://eic.cefet-rj.br/~dhaddad" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/8728806963872778" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.researchgate.net/profile/Diego_Haddad" target="_blank" style="text-decoration:none" class="ai ai-researchgate-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://scholar.google.com.br/citations?user=by_v_7gAAAAJ&hl=pt-PT" target="_blank" style="text-decoration:none" class="ai ai-google-scholar-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://orcid.org/0000-0002-7634-5481" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.linkedin.com/in/diego-haddad-87531923" target="_blank" style="text-decoration:none" class="fa fa-linkedin-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.youtube.com/watch?v=SsPd5kO6yNM" target="_blank" style="text-decoration:none" class="fa fa-youtube-square w3-hover-opacity w3-text-grey"><!--Vídeo sobre principais áreas de pesquisa--></a>
+    </p>
+
+    <p class="w3-text-black"><b>Douglas de Oliveira Cardoso</b>&nbsp;
+      <a href="https://github.com/docardoso" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/9438219886705967" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.researchgate.net/profile/Douglas_Cardoso" target="_blank" style="text-decoration:none" class="ai ai-researchgate-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://scholar.google.com.br/citations?user=i88U02AAAAAJ" target="_blank" style="text-decoration:none" class="ai ai-google-scholar-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://orcid.org/0000-0002-1932-334X" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://docardoso.github.io/" target="_blank" style="text-decoration:none" class="fa fa-github-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+
+    <p class="w3-text-black"><b>Jurair Rosa de Paula Junior</b>&nbsp;
+      <a href="https://sites.google.com/site/jurairr/home" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/9751076606861802" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.researchgate.net/profile/Jurair_Rosa2" target="_blank" style="text-decoration:none" class="ai ai-researchgate-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://scholar.google.com/citations?user=qRdSJZcAAAAJ&hl=en" target="_blank" style="text-decoration:none" class="ai ai-google-scholar-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://orcid.org/0000-0002-0035-2247" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.linkedin.com/in/jurair-rosa-de-paula-junior-9b38541b" target="_blank" style="text-decoration:none" class="fa fa-linkedin-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+
+    <p class="w3-text-black"><b>Laura Silva de Assis</b>&nbsp;
+      <a href="http://sites.google.com/site/lauraassis/" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/5422223061528938" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.researchgate.net/profile/Laura_Assis" target="_blank" style="text-decoration:none" class="ai ai-researchgate-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://scholar.google.com.br/citations?hl=en&user=IA70H1UAAAAJ" target="_blank" style="text-decoration:none" class="ai ai-google-scholar-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://orcid.org/0000-0003-3081-9722" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.linkedin.com/in/laura-assis-42499164" target="_blank" style="text-decoration:none" class="fa fa-linkedin-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+
+    <p class="w3-text-black"><b>Luis Carlos dos Santos Coutinho Retondaro</b>&nbsp;
+      <a href="http://www.retondaro.pro.br" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/0568892789918244" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+
+    <p class="w3-text-black"><b>Luís Domingues Tomé Jardim Tarrataca</b>&nbsp;
+      <a href="http://web.ist.utl.pt/luis.tarrataca/index.html" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/3170909452575755" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.researchgate.net/profile/Luis_Tarrataca" target="_blank" style="text-decoration:none" class="ai ai-researchgate-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://scholar.google.com/citations?user=9N8mKvwAAAAJ&hl=en" target="_blank" style="text-decoration:none" class="ai ai-google-scholar-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://orcid.org/0000-0001-9359-5143" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://www.linkedin.com/in/luistarrataca/" target="_blank" style="text-decoration:none" class="fa fa-linkedin-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+
+    <p class="w3-text-black"><b>Pedro Carlos da Silva Lara</b>&nbsp;
+      <a href="http://www.lncc.br/~pcslara" target="_blank" style="text-decoration:none" class="fa fa-external-link-square w3-hover-opacity w3-text-grey"></a>
+      <a href="http://lattes.cnpq.br/9711646725506261" target="_blank" style="text-decoration:none" class="ai ai-lattes-square w3-hover-opacity w3-text-grey"></a>
+      <a href="https://orcid.org/0000-0001-8722-7723" target="_blank" style="text-decoration:none" class="ai ai-orcid-square w3-hover-opacity w3-text-grey"></a>
+    </p>
+  </div>
+</div>
+
+<div class="w3-container w3-black w3-center w3-opacity w3-padding-8">
+  <h1 class="w3-xlarge">
+    <a href="https://pt-br.facebook.com/cefetcampuspetropolis" target="_blank" style="text-decoration:none" class="fa fa-facebook-official w3-hover-opacity border-bottom: 1px solid #000"></a>
+    <a href="https://www.instagram.com/cefetcampuspetropolis" target="_blank" style="text-decoration:none" class="fa fa-instagram w3-hover-opacity border-bottom: 1px solid #000"></a>
+    <a href="https://twitter.com/cefet_rj?lang=en" target="_blank" style="text-decoration:none" class="fa fa-twitter-square w3-hover-opacity"></a>
+    <a href="https://www.linkedin.com/company/cefetrj/?originalSubdomain=br" target="_blank" style="text-decoration:none" class="fa fa-linkedin-square w3-hover-opacity"></a>
+  </h1>
+</div>
+
+</body>
+</html>
